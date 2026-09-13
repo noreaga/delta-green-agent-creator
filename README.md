@@ -95,13 +95,24 @@ Equipment creation is intentionally outside the current workflow.
 
 ## Screenshots
 
-![Handler Setup](docs/images/agent-creator-setup.png)
-
-| Background Skills | Review and Confirm |
-| --- | --- |
-| ![Background Skills](docs/images/agent-creator-5-background-skills.png) | ![Review and Confirm](docs/images/agent-creator-9-review.png) |
-
-![Themed Delta Green Agent sheet](docs/images/character-sheet.png)
+<table>
+  <tr>
+    <th>Handler Setup</th>
+    <th>Background Skills</th>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/agent-creator-setup.png" alt="Handler Setup"></td>
+    <td width="50%"><img src="docs/images/agent-creator-5-background-skills.png" alt="Background Skills"></td>
+  </tr>
+  <tr>
+    <th>Review and Confirm</th>
+    <th>Themed Agent Sheet</th>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/agent-creator-9-review.png" alt="Review and Confirm"></td>
+    <td width="50%"><img src="docs/images/character-sheet.png" alt="Themed Delta Green Agent sheet"></td>
+  </tr>
+</table>
 
 ## Credits and legal
 
