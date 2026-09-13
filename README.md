@@ -14,6 +14,11 @@ Extract the `delta-green-agent-creator` folder into Foundry's `Data/modules` dir
 
 Use the `Agent Creator` control in the sheet title bar to begin or resume creation.
 
+## Version 0.4.52
+
+* Waited for Foundry's first login User Configuration window to close before opening the Player Setup Wizard
+* Prevented duplicate Player Setup Wizard windows during delayed startup checks
+
 ## Version 0.4.51
 
 * Removed the ineffective rendered row hiding approach

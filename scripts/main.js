@@ -2,6 +2,44 @@ import { DeltaGreenChargenWizard } from "./wizard.js";
 import { MODULE_ID, getSetting, registerSettings } from "./settings.js";
 import { AgentCreatorSetupWizard, PlayerSetupWizard } from "./settings-menu.js";
 
+let playerSetupLaunchTimer = null;
+
+function hasOpenUserConfiguration() {
+  const instances = globalThis.foundry?.applications?.instances;
+  if (!instances?.values) return false;
+  return [...instances.values()].some(application => {
+    if (!application?.rendered) return false;
+    const className = String(application.constructor?.name ?? "").toLowerCase();
+    const applicationId = String(application.id ?? application.options?.id ?? "").toLowerCase();
+    return className === "userconfig"
+      || className === "userconfiguration"
+      || applicationId.includes("user-config");
+  });
+}
+
+function hasOpenPlayerSetupWizard() {
+  if (document.getElementById("dgac-player-setup-wizard")) return true;
+  const instances = globalThis.foundry?.applications?.instances;
+  if (!instances?.values) return false;
+  return [...instances.values()].some(application =>
+    application?.rendered && application instanceof PlayerSetupWizard
+  );
+}
+
+function schedulePlayerSetupWizard() {
+  if (playerSetupLaunchTimer) clearTimeout(playerSetupLaunchTimer);
+  playerSetupLaunchTimer = setTimeout(() => {
+    playerSetupLaunchTimer = null;
+    if (game.user.isGM || getSetting("playerSetupComplete", false)) return;
+    if (hasOpenPlayerSetupWizard()) return;
+    if (hasOpenUserConfiguration()) {
+      schedulePlayerSetupWizard();
+      return;
+    }
+    new PlayerSetupWizard().render({ force: true });
+  }, 500);
+}
+
 function setAgentSheetTheme(style) {
   const body = document.body;
   if (!body) return;
@@ -141,7 +179,7 @@ Hooks.once("ready", async () => {
   if (handlerSetupNeeded) {
     new AgentCreatorSetupWizard().render({ force: true });
   } else if (!game.user.isGM && !getSetting("playerSetupComplete", false)) {
-    new PlayerSetupWizard().render({ force: true });
+    schedulePlayerSetupWizard();
   }
   console.log(`${MODULE_ID} | Ready for Foundry ${game.version} and Delta Green ${game.system.version}.`);
 });
