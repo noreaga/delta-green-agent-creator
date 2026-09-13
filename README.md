@@ -114,10 +114,19 @@ Equipment creation is intentionally outside the current workflow.
   </tr>
 </table>
 
-## Credits and legal
+## Credits
 
-Created by Paul with development assistance from OpenAI Codex and independent review assistance from Anthropic Claude.
+Created and maintained by [Nore](https://github.com/noreaga).
 
-This module was informed by community Delta Green creator projects and the Delta Green Foundry system.
+Development assistance was provided by OpenAI Codex, with independent review assistance from Anthropic Claude.
 
-Delta Green is a trademark and copyright of the Delta Green Partnership. This is an unofficial fan made module. It includes no rulebook PDFs or copyrighted artwork.
+Built for the [Delta Green system for Foundry Virtual Tabletop](https://github.com/TheLastScrub/delta-green-foundry-vtt-system).
+
+## License
+
+MIT © 2026 Nore  
+See [LICENSE.md](LICENSE.md).
+
+## Legal
+
+Delta Green is a trademark and copyright of the Delta Green Partnership. Delta Green Agent Creator is an unofficial fan made module and is not affiliated with or endorsed by the Delta Green Partnership. No rulebook PDFs or copyrighted artwork are distributed with this module.
