@@ -95,6 +95,8 @@ Equipment creation is intentionally outside the current workflow.
 
 ## Screenshots
 
+![Handler Setup](docs/images/agent-creator-setup.png)
+
 | Background Skills | Review and Confirm |
 | --- | --- |
 | ![Background Skills](docs/images/agent-creator-5-background-skills.png) | ![Review and Confirm](docs/images/agent-creator-9-review.png) |
