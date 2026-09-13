@@ -8,6 +8,12 @@ function isPlayerSetupComplete() {
   return game.user?.getFlag(MODULE_ID, "playerSetupComplete") === true;
 }
 
+async function migrateLegacyPlayerSetupCompletion() {
+  if (game.user?.isGM || isPlayerSetupComplete()) return;
+  if (getSetting("playerSetupComplete", false) !== true) return;
+  await game.user.setFlag(MODULE_ID, "playerSetupComplete", true);
+}
+
 function hasOpenUserConfiguration() {
   const instances = globalThis.foundry?.applications?.instances;
   if (!instances?.values) return false;
@@ -184,6 +190,8 @@ Hooks.once("ready", async () => {
         }
       }
     }
+  } else {
+    await migrateLegacyPlayerSetupCompletion();
   }
   setAgentSheetTheme(getSetting("agentSheetStyle", "midnight"));
   const handlerSetupNeeded = game.user.isGM && !getSetting("handlerSetupComplete", false);
