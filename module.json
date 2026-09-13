@@ -1,0 +1,35 @@
+{
+  "id": "delta-green-agent-creator",
+  "title": "Delta Green Agent Creator",
+  "description": "A guided character creation wizard for Delta Green on Foundry VTT v14.",
+  "version": "0.4.51",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14",
+    "maximum": "14"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "deltagreen",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.0.1",
+          "verified": "2.0.1"
+        }
+      }
+    ]
+  },
+  "authors": [
+    {
+      "name": "Paul"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/creator.css",
+    "styles/agent-sheet.css"
+  ]
+}

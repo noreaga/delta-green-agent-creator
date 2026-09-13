@@ -1,0 +1,1017 @@
+<div class="dg-wizard-wrapper {{#if randomOnly}}dg-random-only{{/if}}" data-step="{{step}}">
+
+    {{!-- Progress bar --}}
+    <nav class="dg-wizard-progress" aria-label="Agent creation sections">
+        {{#each progressSteps}}
+        <button type="button" data-action="jumpToStep" data-step="{{index}}"
+            class="dg-step-dot {{#if active}}active{{/if}} {{#if done}}done{{/if}} {{#if warning}}has-warning{{/if}}"
+            title="{{tooltip}}"
+            aria-label="{{tooltip}}"
+            {{#if active}}aria-current="step"{{/if}}
+            {{#unless canNavigate}}disabled{{/unless}}>
+            <span class="dg-visually-hidden">{{title}}</span>
+        </button>
+        {{/each}}
+        <span class="dg-step-label">Step {{inc displayStepIndex}} of {{totalSteps}}</span>
+    </nav>
+
+    <form class="dg-wizard-form" autocomplete="off">
+
+        {{!-- ================================================================
+        STEP: welcome
+        ================================================================ --}}
+        {{#if (eq step "welcome")}}
+        <div class="dg-step dg-step-welcome">
+            <div class="dg-case-kicker">Personnel intake · restricted</div>
+            <h2>Open a New Agent File</h2>
+            <p class="dg-flavour">Build the person first. The clearance, compromises, and consequences come next.</p>
+            <div class="dg-case-summary">
+                <div><span>Record</span><strong>{{actor.name}}</strong></div>
+                <div><span>Workflow</span><strong>{{totalSteps}} sections</strong></div>
+                <div><span>Status</span><strong>Incomplete</strong>{{#if canResumeCreation}}<button type="button" data-action="startOver" class="dg-start-over-link"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Start Over</button>{{/if}}</div>
+            </div>
+            <div class="dg-start-routes">
+                <button type="button" data-action="{{#if canResumeCreation}}resumeCreation{{else}}nextStep{{/if}}" class="dg-start-route dg-start-route-primary">
+                    <span class="dg-start-route-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+                    {{#if canResumeCreation}}
+                    <span><strong>Continue Agent</strong><small>Resume the saved creator session.</small></span>
+                    {{else}}
+                    <span><strong>Build an Agent</strong><small>Make every choice through the guided creator.</small></span>
+                    {{/if}}
+                </button>
+                {{#if allowRandomAgent}}
+                <button type="button" data-action="randomizeAgent" class="dg-start-route dg-start-route-random">
+                    <span class="dg-start-route-icon"><i class="fa-solid fa-dice" aria-hidden="true"></i></span>
+                    <span><strong>Random Agent</strong><small>Generate a complete Agent, then review every choice.</small></span>
+                </button>
+                {{/if}}
+            </div>
+            {{#if showWelcomeAgentTransfer}}
+            <section class="dg-transfer-panel dg-transfer-panel-welcome">
+                <div class="dg-transfer-header">
+                    <h3><i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i> Import an Existing Agent</h3>
+                    <p>Continue with a portable Agent file or code. The imported Agent opens in Review before changing this sheet.</p>
+                </div>
+                <div class="dg-transfer-actions">
+                    {{#if allowAgentImport}}
+                    <button type="button" data-action="importAgentFile" class="dg-btn-secondary"><i class="fa-solid fa-file-import"></i> Import Agent JSON</button>
+                    <button type="button" data-action="pasteAgentCode" class="dg-btn-secondary"><i class="fa-solid fa-paste"></i> Paste Agent Code</button>
+                    {{/if}}
+                    {{#if hasStoredAgent}}<button type="button" data-action="loadStoredAgent" class="dg-btn-secondary"><i class="fa-solid fa-address-card"></i> Review Applied Agent</button>{{/if}}
+                </div>
+            </section>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: stats
+        ================================================================ --}}
+        {{#if (eq step "stats")}}
+        <div class="dg-step dg-step-stats">
+            <h2>Statistics</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>Statistics range from 3 to 18. Their scores are multiplied by five when a statistic test is required. Choose the generation method that fits your group, then assign every available value once.</p>
+                <p><strong>HP</strong> is the average of STR and CON, rounded up. <strong>WP</strong> equals POW. <strong>SAN</strong> begins at POW × 5. <strong>BP</strong> begins at SAN minus POW.</p>
+            </details>
+
+            <p class="dg-hint">Choose a generation method, then assign every result to exactly one statistic.</p>
+
+            <div class="dg-stat-methods">
+                {{#if allowStatGeneralist}}
+                <button type="button" data-action="useGeneralistArray" class="dg-method-card {{#if (eq statMethod 'generalist')}}active{{/if}}{{#if (eq statMethod 'standard')}}active{{/if}}">
+                    <span class="dg-method-title">Generalist</span>
+                    <span>13 · 13 · 12 · 12 · 11 · 11</span>
+                </button>
+                {{/if}}
+                {{#if allowStatFocused}}
+                <button type="button" data-action="useFocusedArray" class="dg-method-card {{#if (eq statMethod 'focused')}}active{{/if}}">
+                    <span class="dg-method-title">Focused</span>
+                    <span>15 · 14 · 12 · 11 · 10 · 10</span>
+                </button>
+                {{/if}}
+                {{#if allowStatHighlyFocused}}
+                <button type="button" data-action="useHighlyFocusedArray" class="dg-method-card {{#if (eq statMethod 'highlyFocused')}}active{{/if}}">
+                    <span class="dg-method-title">Highly focused</span>
+                    <span>17 · 14 · 12 · 10 · 10 · 9</span>
+                </button>
+                {{/if}}
+                {{#if allowStatRolled}}
+                <button type="button" data-action="selectRollMethod" class="dg-method-card {{#if (eq statMethod 'rolled')}}active{{/if}}">
+                    <span class="dg-method-title">Roll statistics</span>
+                    <span>Six rolls of 4D6, drop the lowest</span>
+                </button>
+                {{/if}}
+                {{#if allowStatPointBuy}}
+                <button type="button" data-action="usePointBuy" class="dg-method-card {{#if isPointBuy}}active{{/if}}">
+                    <span class="dg-method-title">Allocate 72 points</span>
+                    <span>Set each statistic from 3 to 18</span>
+                </button>
+                {{/if}}
+                {{#if allowStatRandomizer}}
+                <button type="button" data-action="randomizeStats" class="dg-method-card {{#if isRandomMethod}}active{{/if}}">
+                    <span class="dg-method-title">Randomized Statistics</span>
+                    <span>Random permitted method and assignment</span>
+                </button>
+                {{/if}}
+            </div>
+
+            {{#if isRandomMethod}}<p class="dg-random-result">Random method selected: <strong>{{randomSource}}</strong></p>{{/if}}
+
+            {{#if isPointBuy}}
+            <div class="dg-points-bar">Points remaining: <strong class="dg-points-remaining">{{pointsRemaining}}</strong></div>
+            <div class="dg-stats-grid">
+                {{#each stats}}
+                <div class="dg-stat-block" title="{{lookup ../statTooltips @key}}">
+                    <label class="dg-stat-label">{{lookup ../statLabels @key}}</label>
+                    <div class="dg-stat-controls">
+                        <button type="button" data-action="adjustPointBuy" data-stat="{{@key}}" data-delta="-1" class="dg-adjust-btn">−</button>
+                        <input type="number" name="stats.{{@key}}" value="{{this}}" min="3" max="18" class="dg-stat-input" />
+                        <button type="button" data-action="adjustPointBuy" data-stat="{{@key}}" data-delta="1" class="dg-adjust-btn" {{#if ../pointBuyAtLimit}}disabled{{/if}}>+</button>
+                    </div>
+                    <span class="dg-x5">×5 = {{multiply this 5}}</span>
+                    <span class="dg-descriptor">{{lookup ../statDescriptors @key}}</span>
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            {{#if isRollMethod}}
+            <div class="dg-roll-action-panel">
+                <button type="button" data-action="rollStatPool" class="dg-roll-action">
+                    <i class="fa-solid fa-dice" aria-hidden="true"></i>
+                    {{#if hasStatPool}}Roll six new statistics{{else}}Roll six statistics{{/if}}
+                </button>
+                <span>Each roll is sent to Foundry chat and saved here until you reroll.</span>
+            </div>
+            {{/if}}
+            {{#if hasStatPool}}
+            <div class="dg-roll-pool" aria-label="Available statistic values">
+                <span class="dg-pool-label">Available values</span>
+                {{#each availableStatPool}}<strong>{{label}}</strong>{{/each}}
+                {{#unless availableStatPool}}<span class="dg-pool-complete">All values assigned</span>{{/unless}}
+            </div>
+            {{else}}
+            <div class="dg-roll-pool dg-roll-pool-empty">No rolls yet. Use the button above to generate the pool.</div>
+            {{/if}}
+
+            {{#if hasStatPool}}
+            <div class="dg-stat-assignment-grid">
+                {{#each statAssignmentRows}}
+                <label class="dg-stat-assignment-row" title="{{tooltip}}">
+                    <span class="dg-stat-code">{{label}}</span>
+                    <select name="statAssignment.{{key}}" data-stat="{{key}}" class="dg-stat-assignment">
+                        {{#each options}}
+                        <option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                    <strong class="dg-stat-result">{{#if value}}{{value}}{{else}}—{{/if}}</strong>
+                    <span class="dg-stat-percent">{{#if x5}}{{x5}}%{{else}}—{{/if}}</span>
+                    <span class="dg-descriptor">{{descriptor}}</span>
+                </label>
+                {{/each}}
+            </div>
+            {{/if}}
+            {{/if}}
+
+            <div class="dg-derived-bar">
+                <div class="dg-derived-item"><span class="dg-derived-label">HP</span><strong>{{derived.hp}}</strong>
+                </div>
+                <div class="dg-derived-item"><span class="dg-derived-label">WP</span><strong>{{derived.wp}}</strong>
+                </div>
+                <div class="dg-derived-item"><span class="dg-derived-label">SAN</span><strong>{{derived.san}}</strong>
+                </div>
+                <div class="dg-derived-item"><span class="dg-derived-label">BP</span><strong>{{derived.bp}}</strong>
+                </div>
+            </div>
+
+            {{#if hasStatPool}}{{#unless isPointBuy}}<p class="dg-stat-note">Each selection removes one number from the available pool. Clear a statistic to return its number.</p>{{/unless}}{{/if}}
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: profession
+        ================================================================ --}}
+        {{#if (eq step "profession")}}
+        <div class="dg-step dg-step-profession">
+            <h2>Profession</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>This is your biggest decision. Profession determines your Agent's skills, role in an operation, and
+                    sometimes the resources your Agent can bring to bear by requisitioning equipment.</p>
+                <p>A handful of core professions are most frequently seen among Agents: Anthropologist or Historian,
+                    Computer Scientist or Engineer, Federal Agent, Physician, Scientist, and Special Operator. Many
+                    other professions are described in the Agent's Handbook.</p>
+                <p>Each profession provides <em>required skills</em> at fixed values and <em>optional skills</em> you
+                    may choose from. After you pick your skills, you'll get <strong>8 background bonus skill
+                        picks</strong> (+20 each) to customize further.</p>
+            </details>
+
+            <p class="dg-hint">Choose the profession that best fits your agent's background.</p>
+            <div class="dg-profession-picker">
+                <select name="professionKey" class="dg-select-profession">
+                    <option value="">— Select a Profession —</option>
+                    {{#if professionGroups.core.length}}<optgroup label="Agent's Handbook">{{/if}}
+                    {{#each professionGroups.core}}
+                    <option value="{{key}}" {{#if (eq key ../professionKey)}}selected{{/if}}>{{title}}</option>
+                    {{/each}}
+                    {{#if professionGroups.core.length}}</optgroup>{{/if}}
+                    {{#if professionGroups.custom}}
+                    <option value="{{professionGroups.custom.key}}" {{#if (eq professionGroups.custom.key professionKey)}}selected{{/if}}>{{professionGroups.custom.title}}</option>
+                    {{/if}}
+                    {{#if professionGroups.complex.length}}<optgroup label="The Complex">{{/if}}
+                    {{#each professionGroups.complex}}
+                    <option value="{{key}}" {{#if (eq key ../professionKey)}}selected{{/if}}>{{title}}</option>
+                    {{/each}}
+                    {{#if professionGroups.complex.length}}</optgroup>{{/if}}
+                </select>
+                {{#if allowRandomProfession}}<button type="button" data-action="randomizeProfession" class="dg-btn-secondary">🎲 Random Profession</button>{{/if}}
+            </div>
+            <div class="dg-profession-desc" {{#unless profession}}style="display:none" {{/unless}}>
+                <pre class="dg-desc-text">{{#if profession}}{{profession.description}}{{/if}}</pre>
+            </div>
+
+            {{#each customProfession.dataLists}}
+            <datalist id="dg-custom-sp-{{group}}">
+                {{#each options}}<option value="{{this}}">{{/each}}
+            </datalist>
+            {{/each}}
+
+            <section class="dg-custom-profession-builder" {{#unless isCustomProfession}}style="display:none"{{/unless}}>
+                <div class="dg-custom-heading">
+                    <div>
+                        <h3>Build a Custom Profession</h3>
+                        <p>Choose exactly 10 professional skills and distribute the entire point budget. Resulting ratings cannot exceed 60%.</p>
+                    </div>
+                    <label class="dg-custom-name-label">Profession Name
+                        <input type="text" name="customProfession.name" value="{{customProfession.name}}" placeholder="e.g. Occult Detective" required />
+                    </label>
+                </div>
+
+                <div class="dg-custom-controls">
+                    <label>Starting Bonds
+                        <select name="customProfession.bonds">
+                            <option value="1" {{#if (eq customProfession.bonds 1)}}selected{{/if}}>1 Bond, 500 points</option>
+                            <option value="2" {{#if (eq customProfession.bonds 2)}}selected{{/if}}>2 Bonds, 450 points</option>
+                            <option value="3" {{#if (eq customProfession.bonds 3)}}selected{{/if}}>3 Bonds, 400 points</option>
+                            <option value="4" {{#if (eq customProfession.bonds 4)}}selected{{/if}}>4 Bonds, 350 points</option>
+                        </select>
+                    </label>
+                    <div class="dg-custom-ledger">
+                        <span>Budget <strong class="dg-custom-budget">{{customProfession.budget}}</strong></span>
+                        <span>Spent <strong class="dg-custom-spent">{{customProfession.spent}}</strong></span>
+                        <span>Remaining <strong class="dg-custom-remaining">{{customProfession.remaining}}</strong></span>
+                        <span>Capacity <strong class="dg-custom-capacity">{{customProfession.capacity}}</strong></span>
+                    </div>
+                </div>
+                <p class="dg-custom-feasibility"></p>
+
+                <div class="dg-custom-skill-list">
+                    {{#each customProfession.allocations}}
+                    <div class="dg-custom-skill-row">
+                        <span class="dg-custom-row-number">{{inc index}}</span>
+                        <select name="customProfession.skill.{{index}}" class="dg-custom-skill-select" required>
+                            <option value="">Choose a professional skill</option>
+                            {{#each options}}
+                            <option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                            {{/each}}
+                        </select>
+                        <input type="text" name="customProfession.specialty.{{index}}" value="{{specialty}}"
+                            class="dg-custom-specialty-input" placeholder="Required specialty name"
+                            {{#unless isSpecialty}}style="visibility:hidden" disabled{{/unless}} />
+                        <span class="dg-custom-rating">Base <strong class="dg-custom-base">{{base}}</strong></span>
+                        <div class="dg-custom-allocation" aria-label="Allocate points">
+                            <button type="button" class="dg-custom-adjust" data-delta="-10" title="Remove 10 points">−10</button>
+                            <button type="button" class="dg-custom-adjust" data-delta="-5" title="Remove 5 points">−5</button>
+                            <input type="hidden" name="customProfession.points.{{index}}" value="{{points}}"
+                                min="0" max="60" step="5" class="dg-custom-points-input" />
+                            <output class="dg-custom-added">{{points}}</output>
+                            <button type="button" class="dg-custom-adjust" data-delta="5" title="Add 5 points">+5</button>
+                            <button type="button" class="dg-custom-adjust" data-delta="10" title="Add 10 points">+10</button>
+                        </div>
+                        <span class="dg-custom-result">Total <strong class="dg-custom-total">{{total}}%</strong></span>
+                    </div>
+                    {{/each}}
+                </div>
+
+                <p class="dg-custom-footnote">Allocate in 5 or 10 point increments. Capacity is the most these 10 selections can accept before reaching 60%. The separate Background Skills step still grants eight +20% boosts afterward, with an 80% final creation cap.</p>
+            </section>
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: skills
+        ================================================================ --}}
+        {{#if (eq step "skills")}}
+        <div class="dg-step dg-step-skills">
+            <h2>Skills</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>Choose your optional profession skills at the top, then fill in any required specialty names
+                    (Foreign Language, Science, Craft, etc.). The full list of automatically assigned skills is
+                    shown in the table below for reference.</p>
+                <p><strong>Skill Ratings:</strong><br>
+                    1–19%: Dabbler &nbsp;|&nbsp; 20–29%: Hobbyist &nbsp;|&nbsp; 30–39%: Basic training or a college
+                    minor<br>
+                    40–59%: Years of experience or a college major &nbsp;|&nbsp; 60–79%: Decades of experience or a grad
+                    degree &nbsp;|&nbsp; 80–99%: A lifetime's mastery
+                </p>
+                <details class="dg-tips-inner">
+                    <summary>Notable Skills</summary>
+                    <ul class="dg-tips-list">
+                        <li><strong>Craft</strong> — Mastery of a difficult trade such as electronics, carpentry, or
+                            plumbing.</li>
+                        <li><strong>HUMINT</strong> — Human intelligence: the study and deciphering of behavior and
+                            motivations.</li>
+                        <li><strong>SIGINT</strong> — Encryption, decryption, and signals intelligence.</li>
+                        <li><strong>Unnatural</strong> — Knowledge of Things Man Was Not Meant to Know. This skill
+                            cannot be raised during character creation.</li>
+                    </ul>
+                </details>
+            </details>
+
+            {{#if profession}}
+
+            {{#if isCustomProfession}}
+            <p class="dg-hint dg-custom-skill-summary">These 10 professional skills were defined in the Custom Profession builder. Go back to Profession to change their ratings or Bond trade.</p>
+            {{/if}}
+
+            {{#if allowRandomProfessionSkills}}{{#if showProfessionSkillRandomizer}}<div class="dg-random-section-action">
+                <button type="button" data-action="randomizeProfessionSkills" class="dg-btn-secondary"
+                    {{#unless hasRandomizableProfessionSkills}}disabled
+                    title="Unlock at least one fixed specialty to randomize it"{{/unless}}>
+                    <i class="fa-solid fa-dice" aria-hidden="true"></i> Randomize skill choices and specialties
+                </button>
+            </div>{{/if}}{{/if}}
+
+            {{!-- Datalists for specialty autocomplete (one per group) --}}
+            {{#if specialtyContext}}
+            {{#each specialtyContext.dataLists}}
+            <datalist id="{{id}}">
+                {{#each options}}<option value="{{this}}">{{/each}}
+            </datalist>
+            {{/each}}
+            {{/if}}
+
+            {{#if hasRequiredSkillChoices}}
+            <div class="dg-optional-picks-section dg-required-choice-section">
+                <div class="dg-opt-section-header">
+                    <h3 class="dg-opt-heading">Required professional skill choice</h3>
+                </div>
+                {{#each requiredSkillChoices}}
+                <label class="dg-required-choice-row">
+                    <span>{{label}}</span>
+                    <select name="requiredChoice.{{choiceIndex}}" required>
+                        <option value="">Choose one</option>
+                        {{#each options}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{name}} {{value}}%</option>{{/each}}
+                    </select>
+                </label>
+                {{/each}}
+                <p class="dg-hint">A skill selected here cannot also be chosen from this profession's optional list.</p>
+            </div>
+            {{/if}}
+
+            {{!-- SECTION 1: Optional skill picks --}}
+            {{#if hasOptionalSkills}}
+            <div class="dg-optional-picks-section">
+                <div class="dg-opt-section-header">
+                    <h3 class="dg-opt-heading">Choose any {{optLimit}} of these:</h3>
+                    <span class="dg-opt-picks-counter" data-limit="{{optLimit}}">Optional picks:
+                        <strong>{{optPicksUsed}} / {{optLimit}}</strong></span>
+                </div>
+                {{#each optionalSkillItems}}
+                <div class="dg-opt-skill-row" {{#if tooltip}} title="{{tooltip}}" {{/if}}>
+                    <label class="dg-opt-label">
+                        <input type="checkbox" name="optPick" value="{{optIndex}}" {{#if key}}data-skill-key="{{key}}"{{/if}} {{#if picked}}checked{{/if}} />
+                        <span class="dg-opt-skill-name">{{label}}</span>
+                        {{#if isSpecialty}}
+                        <input type="text" name="specialty.opt.{{optIndex}}" value="{{specialtyLabel}}"
+                            list="dg-sp-{{group}}" placeholder="Choose or type subspecialty"
+                            class="dg-specialty-input dg-opt-spec-input" {{#if picked}}required{{else}}disabled{{/if}} />
+                        {{/if}}
+                        <span class="dg-opt-skill-value">{{profValue}}%</span>
+                    </label>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            {{!-- SECTION 2: Required specialty inputs --}}
+            {{#if specialtyContext.required}}
+            <div class="dg-specialty-section">
+                <h4 class="dg-specialty-heading">Specialty Skills (Required — type or choose)</h4>
+                {{#each specialtyContext.required}}
+                <div class="dg-specialty-row{{#unless label}} dg-specialty-empty{{/unless}}{{#if fixed}} dg-specialty-fixed{{/if}}{{#if modified}} dg-specialty-modified{{/if}}">
+                    <span class="dg-specialty-group">{{groupDisplay}}</span>
+                    <input type="text" name="specialty.req.{{id}}" value="{{label}}" list="dg-sp-{{group}}"
+                        data-group="{{group}}"
+                        placeholder="e.g. {{groupDisplay}} ({{example}}) — choose from list or type your own"
+                        class="dg-specialty-input" {{#if locked}}readonly{{/if}} required />
+                    {{#if fixed}}
+                    <button type="button" data-action="toggleFixedSpecialty" data-slot="{{id}}"
+                        class="dg-specialty-lock{{#if locked}} is-locked{{else}} is-unlocked{{/if}}"
+                        {{#if strictLock}}disabled{{/if}}
+                        title="{{#if strictLock}}Fixed by profession and locked by the GM{{else}}{{#if locked}}Unlock this fixed profession specialty{{else}}Lock this specialty{{/if}}{{/if}}">
+                        <i class="fa-solid {{#if locked}}fa-lock{{else}}fa-lock-open{{/if}}" aria-hidden="true"></i>
+                    </button>
+                    {{#if modified}}
+                    <span class="dg-specialty-modified-label">Modified</span>
+                    <button type="button" data-action="resetFixedSpecialty" data-slot="{{id}}"
+                        class="dg-specialty-reset" title="Restore {{fixedLabel}} and lock it">
+                        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                    </button>
+                    {{/if}}
+                    {{/if}}
+                    <span class="dg-specialty-value">{{proficiency}}%</span>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            {{!-- SECTION 3: Required skills table --}}
+            <p class="dg-hint">Required skills automatically assigned by this profession:</p>
+            <table class="dg-skills-table">
+                <thead>
+                    <tr>
+                        <th>Skill</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each skills}}
+                    <tr class="dg-skill-required" {{#if tooltip}} title="{{tooltip}}" {{/if}}>
+                        <td>{{label}}</td>
+                        <td class="dg-num dg-skill-current">{{current}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+
+            {{else}}
+            <p class="dg-warn">Please go back and select a profession first.</p>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: bonus_skills
+        ================================================================ --}}
+        {{#if (eq step "bonus_skills")}}
+        <div class="dg-step dg-step-bonus-skills">
+            <h2>Background Skills</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>What did your Agent do before his or her current profession?</p>
+                <p>These 8 bonus skill picks represent that history — hobbies, side training, a past life. Use them to
+                    round out your Agent as a person: a Federal Agent who rock-climbs on weekends, a Physician who
+                    speaks three languages, a Soldier who paints.</p>
+                <p>No skill can go above <strong>80%</strong> during character creation. You may pick the same skill
+                    more than once to boost it further (still capped at 80).</p>
+                <p>For specialty skills (Art, Craft, Foreign Language, Pilot, Science, Military Science) select the
+                    group from the dropdown — a subspecialty text box will appear beside it.
+                </p>
+            </details>
+
+            {{#if bonusSkills}} {{!-- Datalists for specialty autocomplete --}}
+            {{#each bonusSkills.bonusDataLists}}
+            <datalist id="{{id}}">{{#each options}}<option value="{{this}}">{{/each}}</datalist>
+            {{/each}} <p class="dg-bonus-choice-note">Pick a <strong>background package</strong> to apply its eight improvements, or assign them individually below.</p>
+            <div class="dg-bonus-pack-row">
+                <label>Background package:
+                    <select id="dg-bonus-pack-select">
+                        <option value="">— choose a background —</option>
+                        {{#each bonusSkills.packages}}
+                        <option value="{{@index}}" {{#if (eq @index ../bonusSkills.packIdx)}}selected{{/if}}>{{label}}
+                        </option>
+                        {{/each}}
+                    </select>
+                </label>
+                <button type="button" data-action="fillPack" class="dg-btn-secondary">Apply Package</button>
+                {{#if allowRandomBackgroundSkills}}<button type="button" data-action="randomizeBackground" class="dg-btn-secondary">🎲 Random Package</button>{{/if}}
+                <button type="button" data-action="clearBackgroundSkills" class="dg-btn-secondary">↺ Reset</button>
+                {{#if bonusSkills.packDesc}}
+                <p class="dg-bonus-pack-desc">{{bonusSkills.packDesc}}</p>
+                {{/if}}
+            </div>
+            <div class="dg-bonus-skills-header">
+                <span class="dg-picks-counter">Improvements used: <strong>{{bonusSkills.picksUsed}}</strong> / 8</span>
+                <span class="dg-picks-counter">Points assigned: <strong>{{bonusSkills.pointsAssigned}}%</strong> / 160%</span>
+            </div>
+            {{#if bonusSkills.pendingOverflow}}<div class="dg-inline-warning">Assign the remaining 10% from the capped improvement to another skill.</div>{{/if}}
+            {{#if bonusSkills.suggested}}
+            <div class="dg-complex-suggestions">
+                <strong>The Complex suggests:</strong>
+                {{#each bonusSkills.suggested}}<span>{{this}}</span>{{/each}}
+            </div>
+            {{/if}}
+            {{#each bonusSkills.slots}}
+            <input type="hidden" name="bonusSlot.{{index}}" value="{{key}}">
+            <input type="hidden" name="bonusCustom.{{index}}" value="{{customLabel}}">
+            {{/each}}
+
+            <div class="dg-background-skill-list">
+                <h3>Skills From Profession</h3>
+                {{#each bonusSkills.professionalRows}}
+                <div class="dg-background-skill-row">
+                    <span class="dg-background-skill-name" title="{{tooltip}}">{{label}} <span class="dg-prof-badge">From Profession</span></span>
+                    <span class="dg-background-skill-rating">{{effective}}%{{#if boostPoints}} <small>(+{{boostPoints}}%)</small>{{/if}}</span>
+                    <div class="dg-background-skill-controls">
+                        <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="-1" {{#unless canRemove}}disabled{{/unless}}>Undo</button>
+                        <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="1" {{#unless canAdd}}disabled{{/unless}}>+{{addAmount}}%</button>
+                    </div>
+                </div>
+                {{/each}}
+
+                <h3>Other Skills</h3>
+                {{#each bonusSkills.otherRows}}
+                {{#if isSpecialtyAdder}}
+                <div class="dg-background-skill-row dg-background-specialty-row">
+                    <label class="dg-background-skill-name" title="{{tooltip}}">{{label}}</label>
+                    <input type="text" name="bonusSpecialty.{{group}}" list="dg-bonus-sp-{{group}}" placeholder="Specify specialty">
+                    <div class="dg-background-skill-controls dg-specialty-inline-control">
+                        <button type="button" data-action="addBackgroundSpecialty" data-group="{{group}}" {{#unless canAdd}}disabled{{/unless}}>Add +{{addAmount}}%</button>
+                    </div>
+                </div>
+                {{else}}
+                <div class="dg-background-skill-row">
+                    <span class="dg-background-skill-name" title="{{tooltip}}">{{label}}</span>
+                    <span class="dg-background-skill-rating">{{effective}}%{{#if boostPoints}} <small>(+{{boostPoints}}%)</small>{{/if}}</span>
+                    <div class="dg-background-skill-controls">
+                        <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="-1" {{#unless canRemove}}disabled{{/unless}}>Undo</button>
+                        <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="1" {{#unless canAdd}}disabled{{/unless}}>+{{addAmount}}%</button>
+                    </div>
+                </div>
+                {{/if}}
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: damaged_veteran
+        ================================================================ --}}
+        {{#if (eq step "damaged_veteran")}}
+        <div class="dg-step dg-step-veteran">
+            <h2>Damaged Veteran <span class="dg-heading-optional">(Optional)</span></h2>
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>Use this step only if the Agent has already survived a traumatic encounter or prior Delta Green operation. A new Agent should remain a Fresh Recruit. Consult the Handler before choosing a traumatic background.</p>
+                <p>The displayed values preview the exact changes that will be applied. Hard Experience may raise a selected skill from 80% to 90%. Only Things Man Was Not Meant to Know resets Breaking Point.</p>
+            </details>
+            <p class="dg-hint">Choose whether this Agent is a fresh recruit or has already been changed by prior operations.</p>
+            {{#if allowRandomVeteran}}<div class="dg-random-section-action">
+                <button type="button" data-action="randomizeVeteran" class="dg-btn-secondary">🎲 Randomize Veteran Status</button>
+            </div>{{/if}}
+            <div class="dg-veteran-options">
+                <label class="dg-veteran-card"><input type="radio" name="veteran.path" value="freshRecruit" {{#if (eq veteran.path "freshRecruit")}}checked{{/if}}><span><strong>Fresh Recruit</strong><small>No traumatic background modifications.</small><span class="dg-veteran-effects"><b>No changes</b></span></span></label>
+                {{#if allowVeteranExtremeViolence}}<label class="dg-veteran-card"><input type="radio" name="veteran.path" value="extremeViolence" {{#if (eq veteran.path "extremeViolence")}}checked{{/if}}><span><strong>Extreme Violence</strong><small>Past exposure to overwhelming violence has left permanent scars.</small><span class="dg-veteran-effects"><b>Occult {{veteranPreview.occult}}% → {{veteranPreview.occultPlusTen}}%</b><b>SAN {{veteranPreview.san}} → {{veteranPreview.sanMinusFive}}</b><b>CHA {{veteranPreview.cha}} → {{veteranPreview.chaMinusThree}}</b><b>Each Bond −3</b><b>Adapted to Violence</b></span></span></label>{{/if}}
+                {{#if allowVeteranCaptivity}}<label class="dg-veteran-card"><input type="radio" name="veteran.path" value="captivity" {{#if (eq veteran.path "captivity")}}checked{{/if}}><span><strong>Captivity or Imprisonment</strong><small>Extended helplessness has changed how the Agent responds to confinement.</small><span class="dg-veteran-effects"><b>Occult {{veteranPreview.occult}}% → {{veteranPreview.occultPlusTen}}%</b><b>SAN {{veteranPreview.san}} → {{veteranPreview.sanMinusFive}}</b><b>POW {{veteranPreview.pow}} → {{veteranPreview.powMinusThree}}</b><b>Starting SAN unchanged by POW loss</b><b>Adapted to Helplessness</b></span></span></label>{{/if}}
+                {{#if allowVeteranHardExperience}}<label class="dg-veteran-card"><input type="radio" name="veteran.path" value="hardExperience" {{#if (eq veteran.path "hardExperience")}}checked{{/if}} {{#unless hardExperienceAllowed}}disabled{{/unless}}><span><strong>Hard Experience</strong><small>Survival came at the cost of stability and a human connection.</small><span class="dg-veteran-effects"><b>Occult {{veteranPreview.occult}}% → {{veteranPreview.occultPlusTen}}%</b><b>SAN {{veteranPreview.san}} → {{veteranPreview.sanMinusFive}}</b><b>Bonds {{veteranPreview.bonds}} → {{veteranPreview.bondsMinusOne}}</b><b>Four different skills +10%</b><b>Skills may exceed 80%</b></span></span></label>{{/if}}
+                {{#if allowVeteranThingsMan}}<label class="dg-veteran-card"><input type="radio" name="veteran.path" value="thingsMan" {{#if (eq veteran.path "thingsMan")}}checked{{/if}}><span><strong>Things Man Was Not Meant to Know</strong><small>Direct contact with the Unnatural before play has permanently altered the Agent.</small><span class="dg-veteran-effects"><b>Unnatural {{veteranPreview.unnatural}}% → {{veteranPreview.unnaturalPlusTen}}%</b><b>Occult {{veteranPreview.occult}}% → {{veteranPreview.occultPlusTwenty}}%</b><b>SAN {{veteranPreview.san}} → {{veteranPreview.sanMinusPow}}</b><b>Breaking Point → {{veteranPreview.breakingPointAfterUnnatural}}</b><b>Gain a Disorder</b></span></span></label>{{/if}}
+            </div>
+            <section class="dg-veteran-detail" data-veteran-path="hardExperience" hidden>
+                <h3>Choose four different skills to receive +10%</h3>
+                <p class="dg-hint">A selected skill at 80% rises to 90%. The current and resulting ratings appear beside each choice.</p>
+                <div class="dg-veteran-skill-grid">
+                    {{#each veteranHardSkillRows}}
+                    <div class="dg-veteran-skill-row">
+                    <select name="veteran.hardSkill.{{index}}">
+                        <option value="" data-value="0">Choose a skill</option>
+                        {{#each ../veteranSkillOptions}}
+                        <option value="{{key}}" data-value="{{value}}" {{#if (eq key ../selected)}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                    <span class="dg-veteran-skill-change">Choose a skill</span>
+                    </div>
+                    {{/each}}
+                </div>
+            </section>
+            <section class="dg-veteran-detail" data-veteran-path="thingsMan" hidden>
+                <label class="dg-veteran-disorder">Starting Disorder for Things Man Was Not Meant to Know
+                    <select name="veteran.disorder">
+                        <option value="">Choose a disorder</option>
+                        <option value="Amnesia" {{#if (eq veteran.disorder "Amnesia")}}selected{{/if}}>Amnesia</option>
+                        <option value="Depersonalization Disorder" {{#if (eq veteran.disorder "Depersonalization Disorder")}}selected{{/if}}>Depersonalization Disorder</option>
+                        <option value="Depression" {{#if (eq veteran.disorder "Depression")}}selected{{/if}}>Depression</option>
+                        <option value="Dissociative Identity Disorder" {{#if (eq veteran.disorder "Dissociative Identity Disorder")}}selected{{/if}}>Dissociative Identity Disorder</option>
+                        <option value="Fugues" {{#if (eq veteran.disorder "Fugues")}}selected{{/if}}>Fugues</option>
+                        <option value="Megalomania" {{#if (eq veteran.disorder "Megalomania")}}selected{{/if}}>Megalomania</option>
+                        <option value="Paranoia" {{#if (eq veteran.disorder "Paranoia")}}selected{{/if}}>Paranoia</option>
+                        <option value="Sleep Disorder" {{#if (eq veteran.disorder "Sleep Disorder")}}selected{{/if}}>Sleep Disorder</option>
+                    </select>
+                </label>
+            </section>
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: bonds
+        ================================================================ --}}
+        {{#if (eq step "bonds")}}
+        <div class="dg-step dg-step-bonds">
+            <h2>Bonds</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>Profession determines how many Bonds your Agent gets. Each Bond should have a name and specify the
+                    relationship — <em>"Ex-husband, Taylor"</em> or <em>"Special Agent Waite, frequent FBI
+                        partner."</em>
+                    Each Bond starts with a score equal to your Agent's CHA.</p>
+                <ul class="dg-tips-list">
+                    <li>» Spouse or ex-spouse</li>
+                    <li>» Son or daughter</li>
+                    <li>» Favored parent or grandparent</li>
+                    <li>» Best friend</li>
+                    <li>» Long-time coworker or partner</li>
+                    <li>» Psychologist or therapist</li>
+                    <li>» Fellow survivors of a shared trauma</li>
+                </ul>
+                <p>Use the <strong>💡 suggestion pool</strong> dropdown to filter the random suggestion by relationship
+                    type — Friends &amp; Family, Delta Green operatives, Underworld contacts, LGBTQ+ community, or
+                    PISCES (British Intelligence).</p>
+            </details>
+
+            <p class="dg-hint">
+                Your profession provides <strong>{{bondLimit}}</strong> starting bond(s).
+                <strong>{{requiredBonds}}</strong> completed bond(s) are required to finish creation.
+                Bonds start at your CHA score ({{stats.cha}}). Any Bond you begin requires a name and relationship.
+            </p>
+            <div class="dg-bond-dataset-row">
+                <label>💡 Suggestion pool:
+                    <select name="bondDataset" class="dg-bond-dataset-select">
+                        {{#each bondDatasets}}
+                        <option value="{{key}}" {{#if (eq key ../bondDataset)}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+                {{#if allowRandomBonds}}<button type="button" data-action="randomizeBonds" class="dg-btn-secondary">🎲 Randomize Bonds</button>{{/if}}
+            </div>
+            {{#each bonds}}
+            <div class="dg-bond-block">
+                <div class="dg-bond-row">
+                    <span class="dg-bond-num">{{inc @index}}.</span>
+                    <input type="text" name="bonds.{{@index}}.name" value="{{name}}" placeholder="Bond name…"
+                        class="dg-bond-name" />
+                    <label>Score</label>
+                    <input type="number" name="bonds.{{@index}}.score" value="{{score}}" min="1" max="99"
+                        class="dg-bond-score" readonly title="Starting Bond scores equal CHA." />
+                    <button type="button" data-action="suggestBond" data-index="{{@index}}" class="dg-btn-small"
+                        title="Suggest a bond">💡</button>
+                </div>
+                <div class="dg-bond-relationship-row">
+                    <input type="text" name="bonds.{{@index}}.relationship" value="{{relationship}}"
+                        placeholder="Relationship (e.g. Ex-wife, FBI partner…)" class="dg-bond-relationship-input" />
+                </div>
+                <div class="dg-bond-details">
+                    <textarea name="bonds.{{@index}}.description" class="dg-bond-description"
+                        placeholder="Description/Developments (optional)">{{description}}</textarea>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: biography
+        ================================================================ --}}
+        {{#if (eq step "biography")}}
+        <div class="dg-step dg-step-biography">
+            <h2>Biography</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>Fill in your Agent's personal details. Hit the <strong>🎲 Random Bio</strong> button to
+                    auto-generate a name, employer, education, and description matched to the profession you chose.
+                    You can always edit the result afterward.</p>
+            </details>
+
+            <div class="dg-bio-actions">
+                {{#if allowRandomBiography}}<button type="button" data-action="randomBio" class="dg-btn-secondary">🎲 Random Bio</button>{{/if}}
+                {{#if allowRandomMotivations}}<button type="button" data-action="randomizeMotivations" class="dg-btn-secondary">🎲 Random Motivations</button>{{/if}}
+                <button type="button" data-action="pickPortrait" class="dg-btn-secondary">🖼 Set Portrait</button>
+            </div>
+
+            <div class="dg-bio-grid">
+                <label class="dg-bio-full-row">Agent Name
+                    <input type="text" name="biography.name" value="{{biography.name}}"
+                        placeholder="First and last name" required />
+                </label>
+                <label>Profession / Job Title
+                    <input type="text" name="biography.profession" value="{{biography.profession}}"
+                        placeholder="e.g. FBI Special Agent" />
+                </label>
+                <label>Employer
+                    <input type="text" name="biography.employer" value="{{biography.employer}}"
+                        placeholder="e.g. Federal Bureau of Investigation" />
+                </label>
+                <label>Nationality
+                    <input type="text" name="biography.nationality" value="{{biography.nationality}}"
+                        placeholder="e.g. American" />
+                </label>
+                <label>Sex
+                    <input type="text" name="biography.sex" value="{{biography.sex}}"
+                        placeholder="e.g. Male / Female / Non-binary" />
+                </label>
+                <label>Age
+                    <input type="text" name="biography.age" value="{{biography.age}}" placeholder="e.g. 34" />
+                </label>
+                <label>Education
+                    <input type="text" name="biography.education" value="{{biography.education}}"
+                        placeholder="e.g. BA Criminology, Quantico" />
+                </label>
+                <fieldset class="dg-bio-full-row dg-physical-block">
+                    <legend>Physical Description / Notes</legend>
+                    <div class="dg-physical-grid">
+                        <label>Height
+                            <input type="text" name="physical.height" value="{{physical.height}}"
+                                placeholder="e.g. 5'10&quot;" />
+                        </label>
+                        <label>Weight
+                            <input type="text" name="physical.weight" value="{{physical.weight}}"
+                                placeholder="e.g. 175 lb" />
+                        </label>
+                        <label>Build
+                            <input type="text" name="physical.build" value="{{physical.build}}"
+                                placeholder="e.g. Lean and muscular" />
+                        </label>
+                        <label>Hair
+                            <input type="text" name="physical.hair" value="{{physical.hair}}"
+                                placeholder="e.g. Short dark brown hair" />
+                        </label>
+                        <label>Eyes
+                            <input type="text" name="physical.eyes" value="{{physical.eyes}}"
+                                placeholder="e.g. Hazel" />
+                        </label>
+                        <label>Complexion
+                            <input type="text" name="physical.complexion" value="{{physical.complexion}}"
+                                placeholder="e.g. Olive, fair, warm brown" />
+                        </label>
+                        <label class="dg-bio-full-row">Distinguishing Features
+                            <input type="text" name="physical.distinguishingFeatures" value="{{physical.distinguishingFeatures}}"
+                                placeholder="e.g. Scar across the left palm, wire frame glasses" />
+                        </label>
+                        <label class="dg-bio-full-row">General Description / Notes
+                            <textarea name="physical.notes" rows="3"
+                                placeholder="Additional appearance, mannerisms, clothing, or identifying details">{{physical.notes}}</textarea>
+                        </label>
+                    </div>
+                </fieldset>
+                <fieldset class="dg-bio-full-row dg-motivations-block">
+                    <legend>Motivations{{#if requiredMotivations}} ({{requiredMotivations}} required){{else}} (optional){{/if}}</legend>
+                    {{#unless requiredMotivations}}<p class="dg-hint">At least one Motivation is encouraged as a useful character hook, but it is not required to finish creation.</p>{{/unless}}
+                    {{#each motivationRows}}
+                    <input type="text" name="motivation.{{index}}" value="{{value}}"
+                        placeholder="e.g. Protect my family, Uncover the truth…" {{#if required}}required{{/if}} />
+                    {{/each}}
+                </fieldset>
+            </div>
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: equipment
+        ================================================================ --}}
+        {{#if (eq step "equipment")}}
+        <div class="dg-step dg-step-equipment">
+            <h2>Equipment</h2>
+
+            <details class="dg-tips">
+                <summary>Tips</summary>
+                <p>Browse and add items by category. Click <strong>+</strong> to include gear, or remove it with the
+                    <strong>✕</strong> on each item card.
+                </p>
+                <p><strong>Operational Gear:</strong> Agents usually start an operation with duffel bags and footlockers
+                    of equipment. No need to list everything in advance — assume the basics are covered.</p>
+                <details class="dg-tips-inner">
+                    <summary>Expense Categories</summary>
+                    <ul class="dg-tips-list">
+                        <li><span class="dg-exp-badge dg-exp-incidental">Incidental</span> (up to $150) — No tracking
+                            needed. Meals, ammo, burner phones, shovels.</li>
+                        <li><span class="dg-exp-badge dg-exp-standard">Standard</span> ($200–$800) — A pistol, same-day
+                            plane ticket, or a week at a modest hotel.</li>
+                        <li><span class="dg-exp-badge dg-exp-unusual">Unusual</span> ($1,000–$5,000) — A scoped rifle,
+                            forged passport, powerful computer.</li>
+                        <li><span class="dg-exp-badge dg-exp-major">Major</span> ($6,000–$30,000) — Heavy weapons,
+                            professional forgery, a new vehicle.</li>
+                        <li><span class="dg-exp-badge dg-exp-extreme">Extreme</span> ($36,000+) — Black-budget
+                            territory. Handler's call entirely.</li>
+                    </ul>
+                </details>
+            </details>
+
+            <div class="dg-eq-loadout-btns">
+                <span class="dg-eq-loadout-btns-label">Quick Loadouts:</span>
+                <button type="button" data-action="loadLoadout" data-loadout="federal_agent"
+                    class="dg-btn-secondary dg-eq-loadout-btn">🕵 Federal Agent</button>
+                <button type="button" data-action="loadLoadout" data-loadout="police_officer"
+                    class="dg-btn-secondary dg-eq-loadout-btn">🚓 Police Officer</button>
+                <button type="button" data-action="loadLoadout" data-loadout="swat"
+                    class="dg-btn-secondary dg-eq-loadout-btn">🛡 SWAT</button>
+                <button type="button" data-action="loadLoadout" data-loadout="special_operator"
+                    class="dg-btn-secondary dg-eq-loadout-btn">⚔ Special Operator</button>
+            </div>
+
+            <div class="dg-eq-layout">
+                <div class="dg-eq-left">
+                    <div class="dg-eq-search-row">
+                        <input type="text" id="dg-eq-search" class="dg-eq-search-input" placeholder="Search catalog…" />
+                        <span class="dg-eq-count"></span>
+                    </div>
+                    <div id="dg-eq-cat-tabs" class="dg-eq-cat-tabs"></div>
+                    <div id="dg-eq-catalog" class="dg-eq-catalog"></div>
+                </div>
+                <div class="dg-eq-right">
+                    <div class="dg-eq-loadout-header">
+                        Loadout
+                        {{#if equipmentCount}}<span class="dg-eq-loadout-badge">{{equipmentCount}}</span>{{/if}}
+                    </div>
+                    <div id="dg-eq-loadout" class="dg-eq-loadout"></div>
+                    <div class="dg-eq-custom-row">
+                        <input type="text" id="dg-eq-custom-input" class="dg-eq-custom-input"
+                            placeholder="Custom item…" />
+                        <button type="button" id="dg-eq-custom-add" class="dg-btn-secondary">+ Add</button>
+                    </div>
+                    <button type="button" data-action="clearEquipment" class="dg-btn-secondary dg-eq-clear-btn">✕ Clear
+                        Loadout</button>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+
+        {{!-- ================================================================
+        STEP: review
+        ================================================================ --}}
+        {{#if (eq step "review")}}
+        <div class="dg-step dg-step-review">
+            <h2>Review &amp; Confirm</h2>
+            <p class="dg-hint">Verify your agent before committing changes to the actor sheet.</p>
+            {{#unless canFinish}}<p class="dg-warn">Complete these sections before applying the Agent: {{#each reviewBlockingSections}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}.</p>{{/unless}}
+            {{#unless review.hasBioName}}<p class="dg-warn">⚠ No agent name set — go back to Biography.</p>{{/unless}}
+
+            <section class="dg-review-section">
+                <h3>{{#if randomOnly}}Statistics{{else}}<button type="button" data-action="jumpToStep" data-step="2" class="dg-review-jump-btn">Statistics ✎</button>{{/if}}</h3>
+                <div class="dg-stats-grid dg-stats-readonly">
+                    {{#each review.stats}}
+                    <div class="dg-stat-block" title="{{tooltip}}">
+                        <span class="dg-stat-label">{{label}}</span>
+                        <span class="dg-stat-value">{{value}}</span>
+                        <span class="dg-x5">×5 = {{x5}}</span>
+                    </div>
+                    {{/each}}
+                </div>
+            </section>
+
+            <section class="dg-review-section dg-review-derived">
+                <h3>Derived Attributes</h3>
+                <div class="dg-review-derived-grid">
+                    <span title="Hit Points measure physical injury capacity and are derived from STR and CON.">HP</span><strong>{{review.derived.hp}}</strong>
+                    <span title="Willpower Points measure mental stamina and normally equal POW.">WP</span><strong>{{review.derived.wp}}</strong>
+                    <span title="Sanity measures the Agent's connection to ordinary human reality.">SAN</span><strong>{{review.derived.san}}</strong>
+                    <span title="Breaking Point is the SAN threshold at which the Agent develops a new disorder.">BP</span><strong>{{review.derived.bp}}</strong>
+                </div>
+            </section>
+
+            <section class="dg-review-section">
+                <h3>{{#if randomOnly}}Profession{{else}}<button type="button" data-action="jumpToStep" data-step="1" class="dg-review-jump-btn">Profession ✎</button>{{/if}}</h3>
+                <p>{{review.profession}}</p>
+            </section>
+
+            <section class="dg-review-section">
+                <h3>{{#if randomOnly}}Key Skills{{else}}<button type="button" data-action="jumpToStep" data-step="3" class="dg-review-jump-btn">Key Skills ✎</button>{{/if}}</h3>
+                <div class="dg-review-skills">
+                    {{#each review.skills}}
+                    <span class="dg-review-skill" title="{{tooltip}}">{{label}}: <strong>{{value}}%</strong></span>
+                    {{/each}}
+                    {{#each review.specialtySkills}}
+                    <span class="dg-review-skill dg-review-skill-specialty" title="{{tooltip}}">{{label}}:
+                        <strong>{{value}}%</strong></span>
+                    {{/each}}
+                    {{#if review.bonusAllocations.length}}
+                    <span class="dg-review-bonus-divider">Bonus picks {{#unless randomOnly}}<button type="button" data-action="jumpToStep"
+                            data-step="4" class="dg-review-jump-btn dg-review-jump-inline">✎</button>{{/unless}}</span>
+                    {{#each review.bonusAllocations}}
+                    <span class="dg-review-skill dg-review-skill-bonus">{{label}}: <strong>+{{total}}%</strong></span>
+                    {{/each}}
+                    {{/if}}
+                </div>
+            </section>
+
+            {{#if showDamagedVeteran}}<section class="dg-review-section">
+                <h3 class="dg-review-veteran-heading"><span>{{#if randomOnly}}Damaged Veteran{{else}}<button type="button" data-action="jumpToStep" data-step="5" class="dg-review-jump-btn">Damaged Veteran ✎</button>{{/if}}</span>{{#if showRandomVeteranReviewNotice}}<span class="dg-review-origin-badge"><i class="fa-solid fa-dice" aria-hidden="true"></i> Randomly Assigned</span>{{/if}}</h3>
+                <p><strong>{{review.veteran.title}}</strong></p>
+                <div class="dg-review-skills">
+                    {{#each review.veteran.effects}}
+                    <span class="dg-review-skill dg-review-skill-veteran" title="Modification applied by the selected traumatic background.">{{this}}</span>
+                    {{/each}}
+                    {{#each review.veteran.skillChanges}}
+                    <span class="dg-review-skill dg-review-skill-veteran" title="Hard Experience skill increase applied after ordinary character creation limits.">{{this}}</span>
+                    {{/each}}
+                </div>
+            </section>{{/if}}
+
+            <section class="dg-review-section">
+                <h3>{{#if randomOnly}}Bonds{{else}}<button type="button" data-action="jumpToStep" data-step="6" class="dg-review-jump-btn">Bonds ✎</button>{{/if}}</h3>
+                {{#each review.bonds}}
+                <div class="dg-review-bond">{{name}}{{#if relationship}} — {{relationship}}{{/if}} ({{score}})</div>
+                {{/each}}
+                {{#unless review.bonds}}
+                <p class="dg-warn">No bonds defined.</p>
+                {{/unless}}
+            </section>
+
+            <section class="dg-review-section">
+                <h3>{{#if randomOnly}}Biography{{else}}<button type="button" data-action="jumpToStep" data-step="7" class="dg-review-jump-btn">Biography ✎</button>{{/if}}</h3>
+                <div class="dg-review-bio-grid">
+                    {{#each review.biography}}
+                    <span class="dg-review-bio-key">{{label}}</span>
+                    <span class="dg-review-bio-val">{{value}}</span>
+                    {{/each}}
+                    {{#each review.physical}}
+                    <span class="dg-review-bio-key">{{label}}</span>
+                    <span class="dg-review-bio-val">{{value}}</span>
+                    {{/each}}
+                </div>
+            </section>
+
+            {{#if review.motivations.length}}
+            <section class="dg-review-section">
+                <h3>{{#if randomOnly}}Motivations{{else}}<button type="button" data-action="jumpToStep" data-step="7" class="dg-review-jump-btn">Motivations ✎</button>{{/if}}</h3>
+                <ul class="dg-review-motivations">
+                    {{#each review.motivations}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </section>
+            {{/if}}
+
+            {{#if review.equipment.length}}
+            <section class="dg-review-section">
+                <h3>Equipment ({{review.equipment.length}} items)</h3>
+                <div class="dg-review-equipment">
+                    {{#each review.equipment}}
+                    <span class="dg-review-eq-item">{{this}}</span>
+                    {{/each}}
+                </div>
+            </section>
+            {{/if}}
+
+            <section class="dg-transfer-panel dg-transfer-panel-review">
+                <div class="dg-transfer-header">
+                    <h3><i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i> Agent Transfer</h3>
+                    <p>Save this Agent for another world or import one created elsewhere. Imports are checked against the Handler's current rules before anything is applied.</p>
+                </div>
+                <div class="dg-transfer-groups">
+                    {{#if allowAgentImport}}
+                    <div class="dg-transfer-group">
+                        <span class="dg-transfer-label">Import</span>
+                        <div class="dg-transfer-actions">
+                            <button type="button" data-action="importAgentFile" class="dg-btn-secondary"><i class="fa-solid fa-file-import"></i> Import JSON</button>
+                            <button type="button" data-action="pasteAgentCode" class="dg-btn-secondary"><i class="fa-solid fa-paste"></i> Paste Agent Code</button>
+                        </div>
+                    </div>
+                    {{/if}}
+                    <div class="dg-transfer-group">
+                        <span class="dg-transfer-label">Export</span>
+                        <div class="dg-transfer-actions">
+                            <button type="button" data-action="exportAgentJson" class="dg-btn-secondary"><i class="fa-solid fa-file-export"></i> Export JSON</button>
+                            <button type="button" data-action="copyAgentCode" class="dg-btn-secondary"><i class="fa-solid fa-copy"></i> Copy Agent Code</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        {{/if}}
+
+    </form>{{!-- .dg-wizard-form --}}
+
+    <input id="dgac-agent-import-file" type="file" accept=".json,.dgac.json,application/json" hidden />
+
+    {{!-- Navigation --}}
+    {{#unless (eq step "welcome")}}
+    <div class="dg-wizard-nav">
+        {{#if isLast}}
+        <button type="button" data-action="startOver" class="dg-btn-secondary dg-btn-start-over"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Start Over</button>
+        {{/if}}
+        {{#unless isFirst}}{{#unless randomOnly}}
+        <button type="button" data-action="prevStep" class="dg-btn-secondary">← Back</button>
+        {{/unless}}{{/unless}}
+        <span class="dg-nav-spacer"></span>
+        {{#if isLast}}
+        {{#if showCompleteRandomReroll}}
+        <button type="button" data-action="rerollCompleteAgent" class="dg-btn-secondary dg-btn-reroll"><i class="fa-solid fa-dice" aria-hidden="true"></i> Reroll Complete Agent</button>
+        {{/if}}
+        <button type="button" data-action="finish" class="dg-btn-primary dg-btn-finish" {{#unless canFinish}}disabled title="Complete all required sections before applying the Agent."{{/unless}}>✔ Apply to Sheet</button>
+        {{else}}
+        {{#unless (eq step "welcome")}}
+        <button type="button" data-action="nextStep" class="dg-btn-primary">Next →</button>
+        {{/unless}}
+        {{/if}}
+    </div>
+    {{/unless}}
+
+</div>{{!-- .dg-wizard-wrapper --}}

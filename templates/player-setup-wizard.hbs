@@ -1,0 +1,121 @@
+<form class="dgac-setup-form dgac-player-setup-form" autocomplete="off">
+    {{#if isSplash}}
+    <main class="dgac-setup-splash dgac-player-setup-splash">
+        <div class="dgac-setup-splash-art" aria-hidden="true">
+            <div class="dgac-setup-file-lines"></div>
+            <div class="dgac-setup-seal">
+                <span class="dgac-setup-seal-ring"></span>
+                <i class="fa-solid fa-user-secret dgac-theme-emblem dgac-theme-emblem-casework"></i>
+                <i class="fa-solid fa-terminal dgac-theme-emblem dgac-theme-emblem-hacker"></i>
+                <i class="fa-solid fa-folder-open dgac-theme-emblem dgac-theme-emblem-old-timer"></i>
+                <i class="fa-solid fa-masks-theater dgac-theme-emblem dgac-theme-emblem-impossible"></i>
+                <i class="fa-solid fa-eye dgac-theme-emblem dgac-theme-emblem-occult"></i>
+            </div>
+            <span class="dgac-setup-classification">Personnel preferences required</span>
+        </div>
+        <div class="dgac-setup-splash-copy">
+            <span class="dgac-setup-eyebrow">Player Configuration</span>
+            <h1>Configure Your Agent Interface</h1>
+            <p>Choose how the Agent Creator looks and behaves for this account. These preferences affect only you and can be changed again at any time.</p>
+            <div class="dgac-recommended-callout">
+                <strong>Recommended starting configuration</strong>
+                <span>Midnight Casework, Ask Every Time, visible Agent Creator access, confirmation before applying, guidance enabled, and standard spacing.</span>
+            </div>
+            <div class="dgac-setup-splash-actions">
+                <button type="button" data-action="playerSetupStart" class="dgac-setup-start"><i class="fa-solid fa-sliders"></i> Begin Setup</button>
+                <button type="button" data-action="playerSetupRecommended"><i class="fa-solid fa-wand-magic-sparkles"></i> Use Recommended Settings</button>
+            </div>
+            <p class="dgac-setup-reassurance"><i class="fa-solid fa-circle-info"></i> Closing this window changes nothing. Your current safe defaults remain active, and setup will be offered again next time.</p>
+        </div>
+        <footer class="dgac-setup-splash-footer">
+            <span>Delta Green Agent Creator</span>
+            <span>Version {{moduleVersion}} | Foundry VTT 14</span>
+        </footer>
+    </main>
+    {{else}}
+    <header class="dgac-setup-header">
+        <span>Player configuration</span>
+        <strong>Step {{pageNumber}} of 3</strong>
+        <nav class="dgac-setup-progress" aria-label="Player setup sections">
+            <button type="button" data-action="playerSetupPage" data-page="0" class="dgac-setup-page {{#if isAppearance}}active{{/if}}" title="Appearance" aria-label="Appearance" {{#if isAppearance}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Appearance</span></button>
+            <button type="button" data-action="playerSetupPage" data-page="1" class="dgac-setup-page {{#if isBehavior}}active{{/if}}" title="Creator Preferences" aria-label="Creator Preferences" {{#if isBehavior}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Preferences</span></button>
+            <button type="button" data-action="playerSetupPage" data-page="2" class="dgac-setup-page {{#if isReview}}active{{/if}}" title="Review" aria-label="Review" {{#if isReview}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Review</span></button>
+        </nav>
+    </header>
+
+    <div class="dgac-settings-scroll dgac-player-setup-scroll">
+        {{#if isAppearance}}
+        <section class="dgac-setup-intro">
+            <h2>Choose Your Interface Theme</h2>
+            <p>The selected theme applies to Agent sheets, the Agent Creator, and Agent Creator settings windows for this account.</p>
+        </section>
+        <fieldset class="dgac-settings-group dgac-player-theme-group">
+            <legend>Available Themes</legend>
+            <div class="dgac-player-theme-grid">
+                {{#each themes}}
+                <label class="dgac-player-theme-card dgac-player-theme-card-{{value}} {{#if selected}}selected{{/if}}">
+                    <input type="radio" name="agentSheetStyle" value="{{value}}" {{#if selected}}checked{{/if}}>
+                    <span class="dgac-player-theme-icon"><i class="fa-solid {{icon}}" aria-hidden="true"></i></span>
+                    <span class="dgac-player-theme-copy"><strong>{{label}}</strong><small>{{description}}</small></span>
+                    <span class="dgac-player-theme-selected"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Selected</span>
+                </label>
+                {{/each}}
+            </div>
+        </fieldset>
+        {{/if}}
+
+        {{#if isBehavior}}
+        <section class="dgac-setup-intro">
+            <h2>Creator Preferences</h2>
+            <p>Choose how the Agent Creator opens and which conveniences it provides.</p>
+        </section>
+        <fieldset class="dgac-settings-group">
+            <legend>Opening Behavior</legend>
+            <div class="dgac-setting-row">
+                <div class="dgac-setting-copy"><label for="dgac-player-opening-route">Agent Creator opening</label><p>Choose what happens when you open the Agent Creator.</p></div>
+                <select id="dgac-player-opening-route" name="defaultCreationRoute" {{#if routeLocked}}disabled{{/if}}>
+                    {{#if allowAskRoute}}<option value="ask" {{#if (eq draft.defaultCreationRoute 'ask')}}selected{{/if}}>Ask Every Time</option>{{/if}}
+                    {{#if allowGuidedRoute}}<option value="guided" {{#if (eq draft.defaultCreationRoute 'guided')}}selected{{/if}}>Guided Creation</option>{{/if}}
+                    {{#if allowRandomRoute}}<option value="random" {{#if (eq draft.defaultCreationRoute 'random')}}selected{{/if}}>Random Agent</option>{{/if}}
+                </select>
+            </div>
+        </fieldset>
+        <fieldset class="dgac-settings-group">
+            <legend>Access and Guidance</legend>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Show Agent Creator button</label><p>Show the Agent Creator control in Agent sheet title bars.</p></div><input type="checkbox" name="showCreatorButton" {{#if draft.showCreatorButton}}checked{{/if}}></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Confirm before applying</label><p>Ask before writing a finished Agent to the Actor.</p></div><input type="checkbox" name="confirmBeforeApply" {{#if draft.confirmBeforeApply}}checked{{/if}}></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Show creator tips</label><p>Show expandable rules and guidance throughout creation.</p></div><input type="checkbox" name="showCreatorTips" {{#if draft.showCreatorTips}}checked{{/if}}></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Compact creator layout</label><p>Reduce spacing and control heights to display more information.</p></div><input type="checkbox" name="compactCreatorLayout" {{#if draft.compactCreatorLayout}}checked{{/if}}></div>
+        </fieldset>
+        {{/if}}
+
+        {{#if isReview}}
+        <section class="dgac-setup-intro">
+            <h2>Review Your Preferences</h2>
+            <p>Confirm how the Agent Creator will appear and behave for this account.</p>
+        </section>
+        <fieldset class="dgac-settings-group dgac-player-review-group">
+            <legend>Appearance</legend>
+            <div class="dgac-player-review-row"><span>Interface theme</span><strong>{{themeLabel}}</strong></div>
+        </fieldset>
+        <fieldset class="dgac-settings-group dgac-player-review-group">
+            <legend>Creator Behavior</legend>
+            <div class="dgac-player-review-row"><span>Opening screen</span><strong>{{routeLabel}}</strong></div>
+            <div class="dgac-player-review-row"><span>Agent Creator button</span><strong>{{#if draft.showCreatorButton}}Shown{{else}}Hidden{{/if}}</strong></div>
+            <div class="dgac-player-review-row"><span>Confirmation before applying</span><strong>{{#if draft.confirmBeforeApply}}Enabled{{else}}Disabled{{/if}}</strong></div>
+            <div class="dgac-player-review-row"><span>Creator tips</span><strong>{{#if draft.showCreatorTips}}Enabled{{else}}Disabled{{/if}}</strong></div>
+            <div class="dgac-player-review-row"><span>Compact layout</span><strong>{{#if draft.compactCreatorLayout}}Enabled{{else}}Disabled{{/if}}</strong></div>
+        </fieldset>
+        <div class="dgac-setup-summary"><strong>Ready to save</strong><span>These preferences affect only this account.</span><span>You can rerun this wizard from module settings.</span></div>
+        {{/if}}
+    </div>
+
+    <footer class="dgac-settings-footer dgac-setup-footer">
+        <button type="button" data-action="playerSetupRecommended" class="dgac-recommended">Use Recommended Defaults</button>
+        <span></span>
+        {{#unless isFirst}}<button type="button" data-action="playerSetupBack">Back</button>{{/unless}}
+        {{#unless isLast}}<button type="button" data-action="playerSetupNext">Next</button>{{/unless}}
+        {{#if isLast}}<button type="button" data-action="playerSetupFinish"><i class="fa-solid fa-check"></i> Save Preferences</button>{{/if}}
+    </footer>
+    {{/if}}
+</form>

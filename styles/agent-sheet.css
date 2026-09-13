@@ -1,0 +1,592 @@
+/* Optional Agent sheet theme matching the Agent Creator */
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet {
+  --dgac-bg: #0d1621;
+  --dgac-sunken: #09121c;
+  --dgac-panel: #142331;
+  --dgac-panel-hover: #1b3040;
+  --dgac-border: #304a5d;
+  --dgac-border-bright: #4c7186;
+  --dgac-text: #dce7ed;
+  --dgac-text-soft: #a8bbc6;
+  --dgac-text-muted: #718895;
+  --dgac-cyan: #79c7d5;
+  --dgac-amber: #e6a85f;
+}
+
+body.dgac-sheet-midnight .deltagreen.agent-sheet {
+  color-scheme: dark;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content.program-style {
+  color: var(--dgac-text);
+  background:
+    linear-gradient(90deg, rgba(121, 199, 213, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(121, 199, 213, 0.018) 1px, transparent 1px),
+    var(--dgac-bg) !important;
+  background-size: 32px 32px;
+  column-gap: 10px;
+  --dg-agent-tab-inactive-bg: #142633;
+  --dg-agent-tab-active-bg: #203c4b;
+  --dg-agent-tab-active-color: #f4f8fa;
+  --dg-surface-dark: #162a37;
+  --dg-on-dark: #edf4f7;
+  --dg-ink: #304a5d;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content > form,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .sheet-body {
+  background: var(--dgac-bg) !important;
+}
+
+body.dgac-sheet-hacker .deltagreen.agent-sheet {
+  --dgac-bg: #030a08; --dgac-sunken: #020605; --dgac-panel: #071510;
+  --dgac-panel-hover: #0b2419; --dgac-border: #194b35; --dgac-border-bright: #2f8259;
+  --dgac-text: #b9f7d2; --dgac-text-soft: #78dba2; --dgac-text-muted: #4b8c68;
+  --dgac-cyan: #35ff8a; --dgac-amber: #d8ff65;
+  font-family: "Courier New", monospace;
+}
+
+body.dgac-sheet-hacker .deltagreen.agent-sheet .window-content,
+body.dgac-sheet-hacker .deltagreen.agent-sheet .window-content.program-style {
+  background-image: linear-gradient(rgba(53,255,138,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(53,255,138,.02) 1px, transparent 1px) !important;
+  background-color: var(--dgac-bg) !important;
+}
+
+body.dgac-sheet-hacker .deltagreen.agent-sheet .left-bar,
+body.dgac-sheet-hacker .deltagreen.agent-sheet .right-bar > .tab,
+body.dgac-sheet-hacker .deltagreen.agent-sheet .left-bar-tab-panels > .tab,
+body.dgac-sheet-hacker .deltagreen.agent-sheet .skill-row { background-color: var(--dgac-panel) !important; border-color: var(--dgac-border) !important; }
+body.dgac-sheet-hacker .deltagreen.agent-sheet input,
+body.dgac-sheet-hacker .deltagreen.agent-sheet select,
+body.dgac-sheet-hacker .deltagreen.agent-sheet textarea { background: var(--dgac-sunken) !important; border-color: var(--dgac-border-bright) !important; color: var(--dgac-text) !important; }
+
+body.dgac-sheet-old-timer .deltagreen.agent-sheet {
+  --dgac-bg: #17130f; --dgac-sunken: #100d0a; --dgac-panel: #282016;
+  --dgac-panel-hover: #352a1d; --dgac-border: #68543a; --dgac-border-bright: #98754b;
+  --dgac-text: #eadbc0; --dgac-text-soft: #ccb995; --dgac-text-muted: #917f62;
+  --dgac-cyan: #c9b27e; --dgac-amber: #d89b52;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body.dgac-sheet-old-timer .deltagreen.agent-sheet .window-content,
+body.dgac-sheet-old-timer .deltagreen.agent-sheet .window-content.program-style {
+  background-image: repeating-linear-gradient(0deg, rgba(234,219,192,.018), rgba(234,219,192,.018) 1px, transparent 1px, transparent 4px) !important;
+  background-color: var(--dgac-bg) !important;
+}
+
+body.dgac-sheet-old-timer .deltagreen.agent-sheet .left-bar,
+body.dgac-sheet-old-timer .deltagreen.agent-sheet .right-bar > .tab,
+body.dgac-sheet-old-timer .deltagreen.agent-sheet .left-bar-tab-panels > .tab,
+body.dgac-sheet-old-timer .deltagreen.agent-sheet .skill-row { background-color: var(--dgac-panel) !important; border-color: var(--dgac-border) !important; }
+body.dgac-sheet-old-timer .deltagreen.agent-sheet input,
+body.dgac-sheet-old-timer .deltagreen.agent-sheet select,
+body.dgac-sheet-old-timer .deltagreen.agent-sheet textarea { background: var(--dgac-sunken) !important; border-color: var(--dgac-border-bright) !important; color: var(--dgac-text) !important; }
+
+body.dgac-sheet-impossible-landscapes .deltagreen.agent-sheet {
+  --dgac-bg: #11130e; --dgac-sunken: #090b08; --dgac-panel: #202519;
+  --dgac-panel-hover: #303725; --dgac-border: #505b36; --dgac-border-bright: #858b49;
+  --dgac-text: #e7e2bd; --dgac-text-soft: #c7c195; --dgac-text-muted: #8e8d67;
+  --dgac-cyan: #c9c85d; --dgac-amber: #e0b95c;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body.dgac-sheet-occult-crimson .deltagreen.agent-sheet {
+  --dgac-bg: #15090d; --dgac-sunken: #0b0507; --dgac-panel: #261117;
+  --dgac-panel-hover: #391820; --dgac-border: #63303b; --dgac-border-bright: #985064;
+  --dgac-text: #eadde0; --dgac-text-soft: #caaab0; --dgac-text-muted: #8f6871;
+  --dgac-cyan: #d45c72; --dgac-amber: #d49a67;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .left-bar {
+  box-sizing: border-box;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 6px;
+  color: var(--dgac-text);
+  background: rgba(9, 18, 28, 0.92);
+  border: 1px solid var(--dgac-border);
+  border-radius: 7px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .profile-img {
+  height: 162px;
+  padding: 5px;
+  object-fit: cover;
+  background: #0a141e;
+  border: 1px solid var(--dgac-border-bright);
+  border-radius: 5px;
+  filter: none;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet select,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet textarea {
+  color: var(--dgac-text);
+  background: #0c1823;
+  border: 1px solid #405a6d;
+  box-shadow: none;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet input:focus,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet select:focus,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet textarea:focus {
+  border-color: var(--dgac-cyan);
+  box-shadow: 0 0 0 1px rgba(121, 199, 213, 0.22);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .header-name-fields > input {
+  padding-inline: 8px;
+  color: #edf3f6;
+  background: #152b39;
+  border-color: #416174;
+  border-radius: 4px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .stats-wrapper {
+  margin-block: 6px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .stats-wrapper input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .resources input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .max-resource-value,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .breaking-point-input {
+  color: var(--dgac-amber);
+  background: #142532;
+  border-color: #3c5a6c;
+  border-radius: 4px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .bolded-label,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .resource-label,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .breaking-point-label,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .adaptation-block,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .adaptation-grid-4col {
+  color: var(--dgac-text);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .luck .rollable,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .fa-refresh {
+  color: var(--dgac-cyan);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content > nav.sheet-tabs {
+  gap: 5px;
+  padding: 0 2px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"] {
+  margin-left: 0;
+  color: var(--dgac-text-soft);
+  background: #132532;
+  border: 1px solid #355165;
+  border-radius: 6px 6px 0 0;
+  box-shadow: none;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"]:hover {
+  color: #ffffff;
+  background: #1c3645;
+  border-color: #55798c;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"].active {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  color: #f4f8fa;
+  background: #203c4b;
+  border-color: #5b8799;
+  box-shadow: inset 0 3px var(--dgac-amber);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .right-bar > .tab,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .left-bar-tab-panels > .tab {
+  color: var(--dgac-text);
+  background: rgba(14, 27, 38, 0.97);
+  border-color: #38566a;
+  border-radius: 0 0 7px 7px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .horizontal-bar-section-divider {
+  min-height: 30px;
+  color: #edf4f7;
+  background: linear-gradient(90deg, #1e3b49, #162d3a);
+  border: 1px solid #416174;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row {
+  margin: 2px;
+  color: var(--dgac-text);
+  background: rgba(20, 35, 49, 0.94);
+  border: 1px solid #2d485b;
+  border-radius: 3px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row:nth-child(even) {
+  background: rgba(17, 31, 43, 0.96);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row:hover {
+  background: var(--dgac-panel-hover);
+  border-color: #53798d;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row .rollable {
+  color: #dce8ed;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row .not-rollable {
+  color: #687e8b;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .percentile-skill-input {
+  color: var(--dgac-amber);
+  background: #0c1823;
+  border-color: #3f5a6c;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .checkbox-skill-input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet input[type="checkbox"] {
+  accent-color: var(--dgac-amber);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .action-pill,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet button.action-pill,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-util-buttons .item-control {
+  color: #dcecf0;
+  background: #183644;
+  border: 1px solid #3f6678;
+  border-radius: 4px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .action-pill:hover,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet button.action-pill:hover,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-util-buttons .item-control:hover {
+  color: #ffffff;
+  background: #275267;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .items-list,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .items-list .item,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .item-name,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .bond-score-value,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .bio-grid-2col,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .bio-grid-5col,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .notes-section,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet p,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet label {
+  color: var(--dgac-text);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .agent-tab-hint,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .hint {
+  color: var(--dgac-text-muted);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .items-list .item {
+  border-bottom-color: #2d4657;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .items-list .item-header {
+  color: var(--dgac-text-soft);
+  background: #132633;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .item-control,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet a {
+  color: var(--dgac-cyan);
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .horizontal-bar-section-divider span,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .action-pill span,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"] span {
+  color: inherit;
+}
+
+@media (max-width: 860px) {
+  body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content {
+    grid-template-columns: 205px minmax(0, 1fr);
+  }
+
+  body.dgac-agent-sheet-theme .deltagreen.agent-sheet .profile-img {
+    height: 145px;
+  }
+}
+
+/* Complete application surface coverage and five theme palettes */
+body.dgac-sheet-midnight {
+  --dgac-sheet-shell-bg: #0d1621;
+  --dgac-sheet-shell-pattern:
+    linear-gradient(90deg, rgba(121, 199, 213, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(121, 199, 213, 0.018) 1px, transparent 1px);
+}
+
+body.dgac-sheet-hacker {
+  --dgac-sheet-shell-bg: #030a08;
+  --dgac-sheet-shell-pattern:
+    linear-gradient(rgba(53, 255, 138, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53, 255, 138, 0.02) 1px, transparent 1px);
+}
+
+body.dgac-sheet-old-timer {
+  --dgac-sheet-shell-bg: #17130f;
+  --dgac-sheet-shell-pattern: repeating-linear-gradient(0deg, rgba(234, 219, 192, 0.018), rgba(234, 219, 192, 0.018) 1px, transparent 1px, transparent 4px);
+}
+
+body.dgac-sheet-impossible-landscapes {
+  --dgac-sheet-shell-bg: #11130e;
+  --dgac-sheet-shell-pattern:
+    repeating-linear-gradient(174deg, rgba(214, 205, 91, 0.025) 0, rgba(214, 205, 91, 0.025) 1px, transparent 1px, transparent 13px),
+    radial-gradient(circle at 78% 18%, rgba(199, 181, 70, 0.07), transparent 34%);
+}
+
+body.dgac-sheet-occult-crimson {
+  --dgac-sheet-shell-bg: #15090d;
+  --dgac-sheet-shell-pattern:
+    radial-gradient(circle at 50% 115%, rgba(162, 43, 65, 0.11), transparent 42%),
+    repeating-linear-gradient(45deg, rgba(190, 62, 83, 0.018) 0, rgba(190, 62, 83, 0.018) 1px, transparent 1px, transparent 16px);
+}
+
+/*
+ * The Delta Green system places its themed form inside Foundry's window-content
+ * element. Cover that parent shell as well as layouts where the system classes
+ * live on the application root. This removes the system's light paper frame.
+ */
+body.dgac-agent-sheet-theme .window-content:has(> form.deltagreen.agent-sheet),
+body.dgac-agent-sheet-theme .window-content:has(> .deltagreen.agent-sheet),
+body.dgac-agent-sheet-theme .window-content:has(.deltagreen.agent-sheet),
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet > .window-content,
+body.dgac-agent-sheet-theme .dgac-themed-agent-sheet > section.window-content,
+body.dgac-agent-sheet-theme section.window-content.dgac-themed-agent-sheet-content {
+  background: var(--dgac-sheet-shell-pattern), var(--dgac-sheet-shell-bg) !important;
+  background-size: 32px 32px !important;
+  padding: 0.5rem !important;
+  border-color: var(--dgac-sheet-shell-bg) !important;
+  outline-color: var(--dgac-sheet-shell-bg) !important;
+  box-shadow: none !important;
+}
+
+body.dgac-agent-sheet-theme form.deltagreen.agent-sheet,
+body.dgac-agent-sheet-theme .window-content > .deltagreen.agent-sheet {
+  background-color: var(--dgac-bg) !important;
+  background-image: none !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet {
+  --dgac-sheet-pattern:
+    linear-gradient(90deg, rgba(121, 199, 213, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(121, 199, 213, 0.018) 1px, transparent 1px);
+  --dgac-left-bg: #09121c;
+  --dgac-input-bg: #0c1823;
+  --dgac-header-bg: #152b39;
+  --dgac-stat-bg: #142532;
+  --dgac-tab-bg: #132532;
+  --dgac-tab-hover: #1c3645;
+  --dgac-tab-active: #203c4b;
+  --dgac-content-bg: #0e1b26;
+  --dgac-section-start: #1e3b49;
+  --dgac-section-end: #162d3a;
+  --dgac-row-bg: #142331;
+  --dgac-row-alt: #111f2b;
+  --dgac-button-bg: #183644;
+  --dgac-button-hover: #275267;
+}
+
+body.dgac-sheet-hacker .deltagreen.agent-sheet {
+  --dgac-sheet-pattern:
+    linear-gradient(rgba(53, 255, 138, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53, 255, 138, 0.02) 1px, transparent 1px);
+  --dgac-left-bg: #020806;
+  --dgac-input-bg: #020a07;
+  --dgac-header-bg: #071b12;
+  --dgac-stat-bg: #07150f;
+  --dgac-tab-bg: #06140e;
+  --dgac-tab-hover: #0b281b;
+  --dgac-tab-active: #0c3422;
+  --dgac-content-bg: #04100b;
+  --dgac-section-start: #0d3b27;
+  --dgac-section-end: #082719;
+  --dgac-row-bg: #071510;
+  --dgac-row-alt: #04100c;
+  --dgac-button-bg: #0b2b1d;
+  --dgac-button-hover: #12452e;
+}
+
+body.dgac-sheet-old-timer .deltagreen.agent-sheet {
+  --dgac-sheet-pattern: repeating-linear-gradient(0deg, rgba(234, 219, 192, 0.018), rgba(234, 219, 192, 0.018) 1px, transparent 1px, transparent 4px);
+  --dgac-left-bg: #100d0a;
+  --dgac-input-bg: #120f0b;
+  --dgac-header-bg: #2b2318;
+  --dgac-stat-bg: #241c13;
+  --dgac-tab-bg: #241d14;
+  --dgac-tab-hover: #382c1e;
+  --dgac-tab-active: #473622;
+  --dgac-content-bg: #1c1711;
+  --dgac-section-start: #493823;
+  --dgac-section-end: #2f2519;
+  --dgac-row-bg: #282016;
+  --dgac-row-alt: #211a13;
+  --dgac-button-bg: #3a2c1d;
+  --dgac-button-hover: #594228;
+}
+
+body.dgac-sheet-impossible-landscapes .deltagreen.agent-sheet {
+  --dgac-sheet-pattern:
+    repeating-linear-gradient(174deg, rgba(214, 205, 91, 0.025) 0, rgba(214, 205, 91, 0.025) 1px, transparent 1px, transparent 13px),
+    radial-gradient(circle at 78% 18%, rgba(199, 181, 70, 0.07), transparent 34%);
+  --dgac-left-bg: #0b0d09;
+  --dgac-input-bg: #0d100b;
+  --dgac-header-bg: #262b19;
+  --dgac-stat-bg: #202417;
+  --dgac-tab-bg: #1d2116;
+  --dgac-tab-hover: #313821;
+  --dgac-tab-active: #414524;
+  --dgac-content-bg: #171a12;
+  --dgac-section-start: #4a4b25;
+  --dgac-section-end: #292d1b;
+  --dgac-row-bg: #202519;
+  --dgac-row-alt: #181d13;
+  --dgac-button-bg: #34381f;
+  --dgac-button-hover: #50542a;
+}
+
+body.dgac-sheet-occult-crimson .deltagreen.agent-sheet {
+  --dgac-sheet-pattern:
+    radial-gradient(circle at 50% 115%, rgba(162, 43, 65, 0.11), transparent 42%),
+    repeating-linear-gradient(45deg, rgba(190, 62, 83, 0.018) 0, rgba(190, 62, 83, 0.018) 1px, transparent 1px, transparent 16px);
+  --dgac-left-bg: #0c0507;
+  --dgac-input-bg: #10070a;
+  --dgac-header-bg: #32141c;
+  --dgac-stat-bg: #281017;
+  --dgac-tab-bg: #251017;
+  --dgac-tab-hover: #3b1822;
+  --dgac-tab-active: #4b1d29;
+  --dgac-content-bg: #1c0b10;
+  --dgac-section-start: #57202d;
+  --dgac-section-end: #35141c;
+  --dgac-row-bg: #261117;
+  --dgac-row-alt: #1d0d12;
+  --dgac-button-bg: #421924;
+  --dgac-button-hover: #632536;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content > form,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .sheet-body {
+  background-color: var(--dgac-bg) !important;
+  background-image: none !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .window-content.program-style {
+  background-color: var(--dgac-bg) !important;
+  background-image: var(--dgac-sheet-pattern) !important;
+  background-size: 32px 32px;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .left-bar {
+  background: var(--dgac-left-bg) !important;
+  border-color: var(--dgac-border) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .profile-img {
+  background: var(--dgac-sunken) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet select,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet textarea,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .percentile-skill-input {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-input-bg) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .header-name-fields > input {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-header-bg) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .stats-wrapper input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .resources input,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .max-resource-value,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .breaking-point-input {
+  color: var(--dgac-amber) !important;
+  background: var(--dgac-stat-bg) !important;
+  border-color: var(--dgac-border) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"] {
+  color: var(--dgac-text-soft) !important;
+  background: var(--dgac-tab-bg) !important;
+  border-color: var(--dgac-border) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"]:hover {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-tab-hover) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .tabs [data-action="tab"].active {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-tab-active) !important;
+  border-color: var(--dgac-border-bright) !important;
+  box-shadow: inset 0 3px var(--dgac-amber) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .right-bar,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .right-bar > .tab,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .left-bar-tab-panels > .tab {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-content-bg) !important;
+  border-color: var(--dgac-border) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .horizontal-bar-section-divider {
+  color: var(--dgac-text) !important;
+  background: linear-gradient(90deg, var(--dgac-section-start), var(--dgac-section-end)) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-row-bg) !important;
+  border-color: var(--dgac-border) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row:nth-child(even) {
+  background: var(--dgac-row-alt) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-row:hover {
+  background: var(--dgac-panel-hover) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .action-pill,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet button.action-pill,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-util-buttons .item-control {
+  color: var(--dgac-text) !important;
+  background: var(--dgac-button-bg) !important;
+  border-color: var(--dgac-border-bright) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .action-pill:hover,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet button.action-pill:hover,
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .skill-util-buttons .item-control:hover {
+  background: var(--dgac-button-hover) !important;
+}
+
+body.dgac-agent-sheet-theme .deltagreen.agent-sheet .items-list .item-header {
+  color: var(--dgac-text-soft) !important;
+  background: var(--dgac-tab-bg) !important;
+}

@@ -1,0 +1,42 @@
+<form class="dgac-settings-form" autocomplete="off">
+    <div class="dgac-settings-scroll">
+        {{#each groups}}
+        <fieldset class="dgac-settings-group">
+            <legend>{{title}}</legend>
+            {{#each fields}}
+            <div class="dgac-setting-row dgac-setting-row-{{input}}">
+                <div class="dgac-setting-copy">
+                    <div class="dgac-setting-label-line">
+                        <label for="dgac-setting-{{key}}">{{label}}</label>
+                        {{#if (eq help "professionCatalog")}}
+                        <button type="button" data-action="professionCatalogHelp" class="dgac-help-button" aria-label="Explain available profession choices" title="Explain available profession choices"><i class="fa-solid fa-question" aria-hidden="true"></i></button>
+                        {{/if}}
+                    </div>
+                    {{#if hint}}<p>{{hint}}</p>{{/if}}
+                    {{#if effects}}<div class="dgac-setting-effects">{{#each effects}}<span>{{this}}</span>{{/each}}</div>{{/if}}
+                </div>
+                {{#if (eq input "checkbox")}}
+                <input id="dgac-setting-{{key}}" type="checkbox" name="{{key}}" {{#if checked}}checked{{/if}} {{#if disabled}}disabled{{/if}} />
+                {{/if}}
+                {{#if (eq input "select")}}
+                <select id="dgac-setting-{{key}}" name="{{key}}">
+                    {{#each options}}
+                    <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                    {{/each}}
+                </select>
+                {{/if}}
+                {{#if (eq input "number")}}
+                <input id="dgac-setting-{{key}}" type="number" name="{{key}}" value="{{current}}" min="{{min}}" max="{{max}}" step="1" />
+                {{/if}}
+                {{#if (eq input "button")}}
+                <button id="dgac-setting-{{key}}" type="button" data-action="{{action}}"><i class="fa-solid fa-sliders"></i> {{buttonLabel}}</button>
+                {{/if}}
+            </div>
+            {{/each}}
+        </fieldset>
+        {{/each}}
+    </div>
+    <footer class="dgac-settings-footer">
+        <button type="button" data-action="saveSettings"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Changes</button>
+    </footer>
+</form>

@@ -1,0 +1,157 @@
+<form class="dgac-setup-form" autocomplete="off">
+    {{#if isSplash}}
+    <main class="dgac-setup-splash">
+        <div class="dgac-setup-splash-art" aria-hidden="true">
+            <div class="dgac-setup-file-lines"></div>
+            <div class="dgac-setup-seal">
+                <span class="dgac-setup-seal-ring"></span>
+                <i class="fa-solid fa-user-secret dgac-theme-emblem dgac-theme-emblem-casework"></i>
+                <i class="fa-solid fa-terminal dgac-theme-emblem dgac-theme-emblem-hacker"></i>
+                <i class="fa-solid fa-folder-open dgac-theme-emblem dgac-theme-emblem-old-timer"></i>
+                <i class="fa-solid fa-masks-theater dgac-theme-emblem dgac-theme-emblem-impossible"></i>
+                <i class="fa-solid fa-eye dgac-theme-emblem dgac-theme-emblem-occult"></i>
+            </div>
+            <span class="dgac-setup-classification">Handler authorization required</span>
+        </div>
+        <div class="dgac-setup-splash-copy">
+            <span class="dgac-setup-eyebrow">World Configuration</span>
+            <h1>Agent Creator Setup</h1>
+            <p>Configure the personnel intake rules for this world. Your choices determine which sourcebooks, statistic methods, optional rules, and creation tools are available to players.</p>
+            <div class="dgac-recommended-callout"><strong>Recommended for most campaigns</strong><span>Both official sources, every statistic method, guided and complete random creation, compatible imports, and optional Damaged Veterans.</span></div>
+            <details class="dgac-recommended-preview">
+                <summary>View every recommended setting</summary>
+                <dl class="dgac-recommended-list">
+                    <div><dt>Available professions</dt><dd>Agent's Handbook and The Complex</dd></div>
+                    <div><dt>Fixed specialties</dt><dd>Allow Unlock</dd></div>
+                    <div><dt>Custom professions</dt><dd>Disabled</dd></div>
+                    <div><dt>Required Motivations</dt><dd>0, with at least one encouraged</dd></div>
+                    <div><dt>Damaged Veteran</dt><dd>Enabled with all four backgrounds</dd></div>
+                    <div><dt>Default Bond pool</dt><dd>Friends and Family</dd></div>
+                    <div><dt>Default statistic method</dt><dd>Generalist</dd></div>
+                    <div><dt>Allowed statistic methods</dt><dd>All six creator methods</dd></div>
+                    <div><dt>Roll visibility</dt><dd>Public Roll</dd></div>
+                    <div><dt>Creation mode</dt><dd>Guided and Complete Random Agent</dd></div>
+                    <div><dt>Player imports</dt><dd>Compatible Agents Only</dd></div>
+                    <div><dt>Random Veteran frequency</dt><dd>Mostly Fresh Recruits</dd></div>
+                    <div><dt>Individual randomizers</dt><dd>All enabled</dd></div>
+                </dl>
+                <p><strong>Complete Random Agents may include a Damaged Veteran background.</strong> Things Man Was Not Meant to Know assumes previous direct contact with the Unnatural.</p>
+            </details>
+            <div class="dgac-setup-splash-actions">
+                <button type="button" data-action="setupStart" class="dgac-setup-start"><i class="fa-solid fa-sliders"></i> Begin Setup</button>
+                <button type="button" data-action="setupRecommended"><i class="fa-solid fa-wand-magic-sparkles"></i> Use Recommended Settings</button>
+            </div>
+            <p class="dgac-setup-reassurance"><i class="fa-solid fa-circle-info"></i> Review every recommended choice before saving. These rules can be changed later through Agent Creator Handler Rules.</p>
+        </div>
+        <footer class="dgac-setup-splash-footer">
+            <span>Delta Green Agent Creator</span>
+            <span>Version {{moduleVersion}} | Foundry VTT 14</span>
+        </footer>
+    </main>
+    {{else}}
+    <header class="dgac-setup-header">
+        <span>Handler configuration</span>
+        <strong>Step {{pageNumber}} of 5</strong>
+        <nav class="dgac-setup-progress" aria-label="Handler setup sections">
+            <button type="button" data-action="setupPage" data-page="0" class="dgac-setup-page {{#if isContent}}active{{/if}}" title="Content and Creation Rules" aria-label="Content and Creation Rules" {{#if isContent}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Content</span></button>
+            <button type="button" data-action="setupPage" data-page="1" class="dgac-setup-page {{#if isStatistics}}active{{/if}}" title="Statistic Rules" aria-label="Statistic Rules" {{#if isStatistics}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Statistics</span></button>
+            <button type="button" data-action="setupPage" data-page="2" class="dgac-setup-page {{#if isRandomization}}active{{/if}}" title="Creation Mode" aria-label="Creation Mode" {{#if isRandomization}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Creation Mode</span></button>
+            <button type="button" data-action="setupPage" data-page="3" class="dgac-setup-page {{#if isAppearance}}active{{/if}}" title="Appearance" aria-label="Appearance" {{#if isAppearance}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Appearance</span></button>
+            <button type="button" data-action="setupPage" data-page="4" class="dgac-setup-page {{#if isPreferences}}active{{/if}}" title="Your Preferences" aria-label="Your Preferences" {{#if isPreferences}}aria-current="step"{{/if}}><i class="dgac-setup-progress-bar" aria-hidden="true"></i><span class="dgac-setup-progress-label">Preferences</span></button>
+        </nav>
+    </header>
+
+    <div class="dgac-settings-scroll">
+        {{#if isContent}}
+        <section class="dgac-setup-intro"><h2>Content and Creation Rules</h2><p>Choose which material and optional rules are available to players in this world.</p></section>
+        <fieldset class="dgac-settings-group"><legend>Content</legend>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><div class="dgac-setting-label-line"><label>Available Professions</label><button type="button" data-action="professionCatalogHelp" class="dgac-help-button" aria-label="Explain available profession choices" title="Explain available profession choices"><i class="fa-solid fa-question" aria-hidden="true"></i></button></div><p>Choose which published profession catalog players can use during Agent creation.</p></div><select name="professionSources">{{#each professionOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Fixed profession specialties</label><p>Control whether named specialties can be changed.</p></div><select name="fixedSpecialtyPolicy">{{#each specialtyOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Allow custom professions</label><p>Permit players to build a profession instead of selecting a published one.</p></div><input type="checkbox" name="allowCustomProfessions" {{#if draft.allowCustomProfessions}}checked{{/if}}></div>
+        </fieldset>
+        <fieldset class="dgac-settings-group"><legend>Requirements</legend>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Required Motivations</label><p>Minimum required before finalizing, from 0 through 5. At least one is encouraged.</p></div><input type="number" name="requiredMotivations" value="{{draft.requiredMotivations}}" min="0" max="5" step="1"></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Allow Damaged Veteran</label><p>Include the optional veteran section and its mechanical effects.</p></div><input type="checkbox" name="allowDamagedVeteran" {{#if draft.allowDamagedVeteran}}checked{{/if}}></div>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Damaged Veteran backgrounds</label><p>Choose which individual backgrounds players may select.</p></div><button type="button" data-action="setupVeteranBackgrounds"><i class="fa-solid fa-sliders"></i> Configure Backgrounds</button></div>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Default Bond suggestion pool</label><p>Sets the initial suggestion pool without restricting other choices.</p></div><select name="defaultBondDataset">{{#each bondDatasetOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+        </fieldset>
+        {{/if}}
+
+        {{#if isAppearance}}
+        <section class="dgac-setup-intro"><h2>Your Interface Theme</h2><p>Choose how Agent sheets and the Agent Creator appear for your GM account.</p></section>
+        <fieldset class="dgac-settings-group dgac-player-theme-group"><legend>Interface Theme</legend>
+            <div class="dgac-player-theme-grid">
+                {{#each themes}}
+                <label class="dgac-player-theme-card dgac-player-theme-card-{{value}} {{#if selected}}selected{{/if}}">
+                    <input type="radio" name="agentSheetStyle" value="{{value}}" {{#if selected}}checked{{/if}}>
+                    <span class="dgac-player-theme-icon"><i class="fa-solid {{icon}}" aria-hidden="true"></i></span>
+                    <span class="dgac-player-theme-copy"><strong>{{label}}</strong><small>{{description}}</small></span>
+                    <span class="dgac-player-theme-selected"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Selected</span>
+                </label>
+                {{/each}}
+            </div>
+        </fieldset>
+        {{/if}}
+
+        {{#if isPreferences}}
+        <section class="dgac-setup-intro"><h2>Your Player Preferences</h2><p>Choose how the Agent Creator behaves for your GM account.</p></section>
+        <fieldset class="dgac-settings-group"><legend>Creator Behavior</legend>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Agent Creator opening</label><p>Choose what happens when you open the Agent Creator.</p></div><select name="defaultCreationRoute">{{#each routeOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Show Agent Creator button</label><p>Show the Agent Creator control in Agent sheet title bars.</p></div><input type="checkbox" name="showCreatorButton" {{#if draft.showCreatorButton}}checked{{/if}}></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Confirm before applying</label><p>Ask before writing a finished Agent to the Actor.</p></div><input type="checkbox" name="confirmBeforeApply" {{#if draft.confirmBeforeApply}}checked{{/if}}></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Show creator tips</label><p>Show expandable rules and guidance throughout creation.</p></div><input type="checkbox" name="showCreatorTips" {{#if draft.showCreatorTips}}checked{{/if}}></div>
+            <div class="dgac-setting-row dgac-setting-row-checkbox"><div class="dgac-setting-copy"><label>Compact creator layout</label><p>Reduce spacing and control heights to display more information.</p></div><input type="checkbox" name="compactCreatorLayout" {{#if draft.compactCreatorLayout}}checked{{/if}}></div>
+        </fieldset>
+        <div class="dgac-setup-summary"><strong>Ready to save setup</strong><span>World rules and your personal preferences will be saved together.</span></div>
+        {{/if}}
+
+        {{#if isStatistics}}
+        <section class="dgac-setup-intro"><h2>Statistic Rules</h2><p>Select every method players may use, then choose the default.</p></section>
+        <fieldset class="dgac-settings-group"><legend>Default</legend>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Default statistic method</label><p>The initial method in guided creation.</p></div><select name="defaultStatMethod">{{#each statOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+        </fieldset>
+        <fieldset class="dgac-settings-group"><legend>Allowed Methods</legend>
+            <div class="dgac-setup-check-grid">
+                <label><input type="checkbox" name="allowStatGeneralist" {{#if draft.allowStatGeneralist}}checked{{/if}}><span><strong>Generalist</strong><small>13 · 13 · 12 · 12 · 11 · 11</small></span></label>
+                <label><input type="checkbox" name="allowStatFocused" {{#if draft.allowStatFocused}}checked{{/if}}><span><strong>Focused</strong><small>15 · 14 · 12 · 11 · 10 · 10</small></span></label>
+                <label><input type="checkbox" name="allowStatHighlyFocused" {{#if draft.allowStatHighlyFocused}}checked{{/if}}><span><strong>Highly Focused</strong><small>17 · 14 · 12 · 10 · 10 · 9</small></span></label>
+                <label><input type="checkbox" name="allowStatRolled" {{#if draft.allowStatRolled}}checked{{/if}}><span><strong>Roll Statistics</strong><small>Six rolls of 4D6, drop the lowest</small></span></label>
+                <label><input type="checkbox" name="allowStatPointBuy" {{#if draft.allowStatPointBuy}}checked{{/if}}><span><strong>Allocate 72 Points</strong><small>Set each statistic from 3 to 18</small></span></label>
+                <label><input type="checkbox" name="allowStatRandomizer" {{#if draft.allowStatRandomizer}}checked{{/if}}><span><strong>Randomized Statistics</strong><small>Random permitted method and assignment</small></span></label>
+            </div>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Statistic roll visibility</label><p>Who can see dice rolls made during creation.</p></div><select name="statRollMode">{{#each rollOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+        </fieldset>
+        {{/if}}
+
+        {{#if isRandomization}}
+        <section class="dgac-setup-intro"><h2>Creation Mode and Review</h2><p>Choose which creation workflows players can access, then configure guided creation conveniences.</p></section>
+        <fieldset class="dgac-settings-group"><legend>Player Access</legend>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Creation mode</label><p>Choose guided creation, complete Random Agent generation, or both. Random only mode prevents manual editing of generated choices.</p></div><select name="randomizationAccess">{{#each randomOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+            <div class="dgac-setting-row"><div class="dgac-setting-copy"><label>Player Agent imports</label><p>Allow players to import portable Agents only when they satisfy this world's rules. Imports remain unavailable in Random only mode.</p></div><select name="playerImportPolicy">{{#each importOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+            <div class="dgac-setting-row" data-setup-veteran-frequency><div class="dgac-setting-copy"><label>Damaged Veteran frequency for complete Random Agents</label><p>Damaged Veterans may appear in complete Random Agents. This does not affect guided creation.</p></div><select name="randomVeteranFrequency">{{#each veteranFrequencyOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></div>
+        </fieldset>
+        <fieldset class="dgac-settings-group" data-setup-section-randomizers><legend>Individual Section Randomizers</legend>
+            <p class="dgac-group-hint">Choose which randomizer controls appear while players build an Agent manually.</p>
+            <div class="dgac-setup-check-grid">
+                <label><input type="checkbox" name="randomizeProfession" {{#if draft.randomizeProfession}}checked{{/if}}> Random Profession</label>
+                <label><input type="checkbox" name="randomizeProfessionSkills" {{#if draft.randomizeProfessionSkills}}checked{{/if}}> Professional Skills and Specialties</label>
+                <label><input type="checkbox" name="randomizeBackgroundSkills" {{#if draft.randomizeBackgroundSkills}}checked{{/if}}> Background Skills</label>
+                <label><input type="checkbox" name="randomizeVeteran" {{#if draft.randomizeVeteran}}checked{{/if}}> Damaged Veteran Status</label>
+                <label><input type="checkbox" name="randomizeBonds" {{#if draft.randomizeBonds}}checked{{/if}}> Bonds</label>
+                <label><input type="checkbox" name="randomizeBiography" {{#if draft.randomizeBiography}}checked{{/if}}> Biography</label>
+                <label><input type="checkbox" name="randomizeMotivations" {{#if draft.randomizeMotivations}}checked{{/if}}> Motivations</label>
+            </div>
+        </fieldset>
+        <div class="dgac-setup-summary"><strong>Ready to configure this world</strong><span>{{draft.requiredMotivations}} Motivations required</span><span>{{#if draft.allowDamagedVeteran}}Damaged Veteran enabled{{else}}Fresh Recruits only{{/if}}</span></div>
+        {{/if}}
+    </div>
+
+    <footer class="dgac-settings-footer dgac-setup-footer">
+        <button type="button" data-action="setupRecommended" class="dgac-recommended">Use Recommended Defaults</button>
+        <span></span>
+        {{#unless isFirst}}<button type="button" data-action="setupBack">Back</button>{{/unless}}
+        {{#unless isLast}}<button type="button" data-action="setupNext">Next</button>{{/unless}}
+        {{#if isLast}}<button type="button" data-action="setupFinish"><i class="fa-solid fa-check"></i> Save Setup</button>{{/if}}
+    </footer>
+    {{/if}}
+</form>
