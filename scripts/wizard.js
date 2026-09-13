@@ -1041,11 +1041,12 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
         return prof;
     }
 
-    #fillBackgroundPackage(packageIndex) {
+    #fillBackgroundPackage(packageIndex, { randomizeOpenSlots = false } = {}) {
         const pkg = BONUS_PACKAGES[packageIndex];
         if (!pkg) return false;
         const safeOptions = BONUS_SKILL_OPTIONS.filter(option => option.key !== 'unnatural');
         const specialtyNames = new Set();
+        const usedPlainSkills = new Set(pkg.skills.filter(key => key && !key.startsWith('_custom_')));
         const boosts = pkg.skills.slice(0, 8);
         while (boosts.length < 8) boosts.push('');
 
@@ -1060,11 +1061,19 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
                 return `_custom_${specialty.group}`;
             }
 
-            const key = originalKey || this.#randomItem(safeOptions).key;
+            if (!originalKey && !randomizeOpenSlots) return '';
+
+            const eligibleOptions = safeOptions.filter(option => {
+                const optionKey = option.key;
+                if (optionKey.startsWith('_custom_')) return true;
+                const base = this.#data.skills[optionKey] ?? SKILL_DEFAULTS[optionKey] ?? 0;
+                return !usedPlainSkills.has(optionKey) && base + 20 <= 80;
+            });
+            const key = originalKey || this.#randomItem(eligibleOptions.length > 0 ? eligibleOptions : safeOptions).key;
             if (key.startsWith('_custom_')) {
                 const group = key.slice('_custom_'.length);
                 this.#data.bonusCustom[index] = this.#randomSpecialty(group, specialtyNames);
-            }
+            } else usedPlainSkills.add(key);
             return key;
         });
         this.#data.selectedPackIdx = packageIndex;
@@ -1073,7 +1082,7 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
 
     #randomizeBackgroundData() {
         const packageIndex = Math.floor(Math.random() * BONUS_PACKAGES.length);
-        this.#fillBackgroundPackage(packageIndex);
+        this.#fillBackgroundPackage(packageIndex, { randomizeOpenSlots: true });
     }
 
     #randomizeVeteranData(forCompleteAgent = false) {
@@ -1424,6 +1433,41 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
 
         const finalStats = { ...this.#data.stats };
         const finalSkills = Object.fromEntries(Object.entries(this.#data.skills).map(([key, value]) => [key, Math.min(80, value + (boostCounts[key] ?? 0))]));
+        const finalSpecialtySkills = new Map();
+        const specialtyIdentity = (group, label) => `${group}|${String(label ?? '').trim().toLowerCase()}`;
+        const setSpecialtyValue = (group, label, value) => {
+            const trimmedLabel = String(label ?? '').trim();
+            if (!group || !trimmedLabel) return;
+            const identity = specialtyIdentity(group, trimmedLabel);
+            const groupDisplay = Object.entries(SPECIALTY_PREFIXES).find(([, value]) => value === group)?.[0] ?? group;
+            const tooltipKey = groupDisplay.toLowerCase().replace(/ /g, '_');
+            finalSpecialtySkills.set(identity, {
+                group,
+                label: `${groupDisplay} (${trimmedLabel})`,
+                value: Math.min(80, value),
+                tooltip: SKILL_TOOLTIPS[tooltipKey] ?? '',
+            });
+        };
+        for (const slot of this.#data.specialtySlots) {
+            if (!slot.label.trim()) continue;
+            setSpecialtyValue(slot.group, slot.label, slot.proficiency);
+        }
+        for (const allocation of this.#getBonusAllocations()) {
+            let group = '';
+            let label = '';
+            if (allocation.key.startsWith('profslot__')) {
+                const parts = allocation.key.split('__');
+                group = parts[1] ?? '';
+                label = parts[2] ?? '';
+            } else if (allocation.key.startsWith('_custom_')) {
+                group = allocation.key.slice('_custom_'.length);
+                label = allocation.customLabel;
+            }
+            if (!group || !String(label ?? '').trim()) continue;
+            const identity = specialtyIdentity(group, label);
+            const current = finalSpecialtySkills.get(identity)?.value ?? 0;
+            setSpecialtyValue(group, label, current + allocation.amount);
+        }
         const baseSkillValue = key => finalSkills[key] ?? this.#getEffectivePlainSkillValue(key);
         const setFinalSkill = (key, value) => { finalSkills[key] = Math.min(99, value); };
         const startingSan = this.#data.stats.pow * 5;
@@ -1484,13 +1528,7 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
                 const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                 return { key: k, label, value: finalSkills[k] ?? v, tooltip: SKILL_TOOLTIPS[k] ?? '' };
             }),
-            specialtySkills: this.#data.specialtySlots
-                .filter(sl => sl.label.trim())
-                .map(sl => {
-                    const groupDisplay = Object.entries(SPECIALTY_PREFIXES).find(([, g]) => g === sl.group)?.[0] ?? sl.group;
-                    const tooltipKey = groupDisplay.toLowerCase().replace(/ /g, '_');
-                    return { label: `${groupDisplay} (${sl.label})`, value: sl.proficiency, tooltip: SKILL_TOOLTIPS[tooltipKey] ?? '' };
-                }),
+            specialtySkills: [...finalSpecialtySkills.values()].sort((a, b) => a.label.localeCompare(b.label)),
             bonds: this.#data.bonds.map(bond => ({ ...bond, score: Math.max(0, bond.score - bondPenalty) })),
             veteran,
             biography: Object.entries(this.#data.biography)
@@ -2763,6 +2801,7 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
         if (!sel || sel.value === '') return;
         const idx = parseInt(sel.value);
         if (!this.#fillBackgroundPackage(idx)) return;
+        this.#saveState();
         this.render({ force: true });
     }
 
@@ -3698,6 +3737,14 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
             const tsKey = ('tskill_wiz_c_' + group + '_' + label)
                 .toLowerCase().replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/_$/g, '');
             typedSkillsToWrite[tsKey] = { label, group, proficiency, failure: false };
+        }
+
+        // Do not send Foundry a deletion marker and replacement for the same
+        // typed skill in one update. Existing matching specialties are updated
+        // in place, while creator-managed specialties absent from the new Agent
+        // retain their deletion markers and are removed.
+        for (const tsKey of Object.keys(typedSkillsToWrite)) {
+            if (!tsKey.startsWith('-=')) delete typedSkillsToWrite[`-=${tsKey}`];
         }
 
         updates['system.typedSkills'] = typedSkillsToWrite;

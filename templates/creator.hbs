@@ -516,12 +516,12 @@
             <div class="dg-background-skill-list">
                 <h3>Skills From Profession</h3>
                 {{#each bonusSkills.professionalRows}}
-                <div class="dg-background-skill-row">
+                <div class="dg-background-skill-row {{#if boostPoints}}dg-background-skill-row-selected{{/if}}">
                     <span class="dg-background-skill-name" title="{{tooltip}}">{{label}} <span class="dg-prof-badge">From Profession</span></span>
                     <span class="dg-background-skill-rating">{{effective}}%{{#if boostPoints}} <small>(+{{boostPoints}}%)</small>{{/if}}</span>
                     <div class="dg-background-skill-controls">
                         <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="-1" {{#unless canRemove}}disabled{{/unless}}>Undo</button>
-                        <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="1" {{#unless canAdd}}disabled{{/unless}}>+{{addAmount}}%</button>
+                        <button type="button" class="{{#if boostPoints}}dg-background-skill-add-selected{{/if}}" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="1" {{#unless canAdd}}disabled{{/unless}}>+{{addAmount}}%</button>
                     </div>
                 </div>
                 {{/each}}
@@ -537,12 +537,12 @@
                     </div>
                 </div>
                 {{else}}
-                <div class="dg-background-skill-row">
+                <div class="dg-background-skill-row {{#if boostPoints}}dg-background-skill-row-selected{{/if}}">
                     <span class="dg-background-skill-name" title="{{tooltip}}">{{label}}</span>
                     <span class="dg-background-skill-rating">{{effective}}%{{#if boostPoints}} <small>(+{{boostPoints}}%)</small>{{/if}}</span>
                     <div class="dg-background-skill-controls">
                         <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="-1" {{#unless canRemove}}disabled{{/unless}}>Undo</button>
-                        <button type="button" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="1" {{#unless canAdd}}disabled{{/unless}}>+{{addAmount}}%</button>
+                        <button type="button" class="{{#if boostPoints}}dg-background-skill-add-selected{{/if}}" data-action="adjustBackgroundSkill" data-skill="{{actionId}}" data-delta="1" {{#unless canAdd}}disabled{{/unless}}>+{{addAmount}}%</button>
                     </div>
                 </div>
                 {{/if}}

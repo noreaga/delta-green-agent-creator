@@ -4,6 +4,10 @@ import { AgentCreatorSetupWizard, PlayerSetupWizard } from "./settings-menu.js";
 
 let playerSetupLaunchTimer = null;
 
+function isPlayerSetupComplete() {
+  return game.user?.getFlag(MODULE_ID, "playerSetupComplete") === true;
+}
+
 function hasOpenUserConfiguration() {
   const instances = globalThis.foundry?.applications?.instances;
   if (!instances?.values) return false;
@@ -30,7 +34,7 @@ function schedulePlayerSetupWizard() {
   if (playerSetupLaunchTimer) clearTimeout(playerSetupLaunchTimer);
   playerSetupLaunchTimer = setTimeout(() => {
     playerSetupLaunchTimer = null;
-    if (game.user.isGM || getSetting("playerSetupComplete", false)) return;
+    if (game.user.isGM || isPlayerSetupComplete()) return;
     if (hasOpenPlayerSetupWizard()) return;
     if (hasOpenUserConfiguration()) {
       schedulePlayerSetupWizard();
@@ -75,7 +79,14 @@ function setAgentSheetTheme(style) {
 }
 
 Hooks.once("init", () => {
-  registerSettings(value => setAgentSheetTheme(value));
+  registerSettings(value => {
+    setAgentSheetTheme(value);
+    const instances = globalThis.foundry?.applications?.instances;
+    if (!instances?.values) return;
+    for (const application of instances.values()) {
+      if (application instanceof PlayerSetupWizard) application.syncSavedTheme(value);
+    }
+  });
 
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("lt", (a, b) => a < b);
@@ -178,7 +189,7 @@ Hooks.once("ready", async () => {
   const handlerSetupNeeded = game.user.isGM && !getSetting("handlerSetupComplete", false);
   if (handlerSetupNeeded) {
     new AgentCreatorSetupWizard().render({ force: true });
-  } else if (!game.user.isGM && !getSetting("playerSetupComplete", false)) {
+  } else if (!game.user.isGM && !isPlayerSetupComplete()) {
     schedulePlayerSetupWizard();
   }
   console.log(`${MODULE_ID} | Ready for Foundry ${game.version} and Delta Green ${game.system.version}.`);

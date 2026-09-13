@@ -221,6 +221,40 @@ export class PlayerPreferencesMenu extends BaseCreatorSettingsMenu {
             ],
         },
     ];
+
+    _onRender(context, options) {
+        super._onRender(context, options);
+        const form = this.element?.querySelector('form.dgac-settings-form');
+        if (!form) return;
+        const themeSelect = form.elements.agentSheetStyle;
+        if (!themeSelect) return;
+        const applyPreview = () => this.#applyThemePreview(themeSelect.value);
+        themeSelect.addEventListener('change', applyPreview);
+        applyPreview();
+    }
+
+    #applyThemePreview(style) {
+        const root = this.element;
+        if (!root) return;
+        root.classList.remove(
+            'dgac-player-live-preview',
+            'dgac-preview-system',
+            'dgac-preview-midnight',
+            'dgac-preview-hacker',
+            'dgac-preview-old-timer',
+            'dgac-preview-impossible-landscapes',
+            'dgac-preview-occult-crimson'
+        );
+        const themeClasses = {
+            system: 'dgac-preview-system',
+            midnight: 'dgac-preview-midnight',
+            hacker: 'dgac-preview-hacker',
+            oldTimer: 'dgac-preview-old-timer',
+            impossibleLandscapes: 'dgac-preview-impossible-landscapes',
+            occultCrimson: 'dgac-preview-occult-crimson',
+        };
+        root.classList.add('dgac-player-live-preview', themeClasses[style] ?? themeClasses.midnight);
+    }
 }
 
 export class PlayerSetupWizard extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -293,6 +327,11 @@ export class PlayerSetupWizard extends HandlebarsApplicationMixin(ApplicationV2)
         const access = this.#creationAccess();
         if (access === 'randomOnly') this.#draft.defaultCreationRoute = 'random';
         else if (access === 'guided' && this.#draft.defaultCreationRoute === 'random') this.#draft.defaultCreationRoute = 'guided';
+    }
+
+    syncSavedTheme(style) {
+        this.#draft.agentSheetStyle = style;
+        if (this.rendered) this.render({ force: true });
     }
 
     async _prepareContext(options) {
@@ -402,7 +441,7 @@ export class PlayerSetupWizard extends HandlebarsApplicationMixin(ApplicationV2)
         for (const [key, value] of Object.entries(this.#draft)) {
             await game.settings.set(MODULE_ID, key, value);
         }
-        await game.settings.set(MODULE_ID, 'playerSetupComplete', true);
+        await game.user.setFlag(MODULE_ID, 'playerSetupComplete', true);
         ui.notifications.info('Agent Creator player preferences saved.');
         this.close();
     }
@@ -832,7 +871,6 @@ export class AgentCreatorSetupWizard extends HandlebarsApplicationMixin(Applicat
             }
         }
         await game.settings.set(MODULE_ID, 'handlerSetupComplete', true);
-        await game.settings.set(MODULE_ID, 'playerSetupComplete', true);
         ui.notifications.info('Agent Creator world rules saved.');
         await this.close();
     }

@@ -82,7 +82,7 @@ export function registerSettings(onSheetThemeChange) {
     });
 
     register('playerSetupComplete', {
-        name: 'Player setup completed', scope: 'client', restricted: false,
+        name: 'Legacy player setup completed', scope: 'client', restricted: false,
         config: false, type: Boolean, default: false,
     });
 
