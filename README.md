@@ -31,6 +31,8 @@ Each user can choose an interface theme without changing another user's preferen
 * Impossible Landscapes
 * Occult Crimson
 
+![Delta Green Agent Creator theme selection](docs/images/agent-creator-player-wizard.png)
+
 Themes apply to Agent sheets, the Agent Creator, and its settings windows. Theme choices can be previewed before saving.
 
 ## Agent transfer
