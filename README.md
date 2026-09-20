@@ -120,8 +120,6 @@ Equipment creation is intentionally outside the current workflow.
 
 Created and maintained by [Nore](https://github.com/noreaga).
 
-Development assistance was provided by OpenAI Codex, with independent review assistance from Anthropic Claude.
-
 Built for the [Delta Green system for Foundry Virtual Tabletop](https://github.com/TheLastScrub/delta-green-foundry-vtt-system).
 
 ## License
