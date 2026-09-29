@@ -1,6 +1,7 @@
 import { DeltaGreenChargenWizard } from "./wizard.js";
 import { MODULE_ID, getSetting, registerSettings } from "./settings.js";
 import { AgentCreatorSetupWizard, PlayerSetupWizard } from "./settings-menu.js";
+import { buildActorPdfState, exportToPDF } from "./pdf-export.js";
 
 let playerSetupLaunchTimer = null;
 
@@ -144,9 +145,34 @@ function addCreatorControl(application, element) {
     new DeltaGreenChargenWizard(actor).openUsingPreference();
   });
 
+  const pdfButton = document.createElement("button");
+  pdfButton.type = "button";
+  pdfButton.className = "header-control dgac-export-pdf";
+  pdfButton.dataset.tooltip = "Export this Agent to a fillable PDF";
+  pdfButton.setAttribute("aria-label", "Export Agent PDF");
+  pdfButton.innerHTML = '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i><span>Export PDF</span>';
+  pdfButton.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+    // A sheet can remain open while the creator updates its Actor. Foundry can
+    // replace the document instance during that update, leaving this render
+    // callback with an older Actor snapshot. Read the sheet application's
+    // current document at click time so veteran stat, SAN, skill, adaptation,
+    // and disorder changes are always included in the exported PDF.
+    const currentActor = application?.document
+      ?? application?.actor
+      ?? game.actors?.get(actor.id)
+      ?? actor;
+    await exportToPDF(buildActorPdfState(currentActor));
+  });
+
   const closeControl = header.querySelector('[data-action="close"]');
-  if (closeControl) header.insertBefore(button, closeControl);
-  else header.append(button);
+  if (closeControl) {
+    header.insertBefore(button, closeControl);
+    header.insertBefore(pdfButton, closeControl);
+  } else {
+    header.append(button, pdfButton);
+  }
 }
 
 function enforceSettingsDependencies(application, element) {

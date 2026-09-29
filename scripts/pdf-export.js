@@ -28,7 +28,7 @@
 "use strict";
 
 const TEMPLATE_URL = "modules/delta-green-agent-creator/assets/Delta-Green-RPG-Character-Sheet.pdf";
-const PDF_LIB_CDN  = "https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+const PDF_LIB_URL  = "modules/delta-green-agent-creator/scripts/vendor/pdf-lib.min.js";
 
 // ── Skill key → AcroForm field name ──────────────────────────────────────────
 // Copied verbatim from DELTA-GREEN-STATS/pdf-export.js — keep in sync.
@@ -94,23 +94,235 @@ function loadPdfLib() {
     return new Promise((resolve, reject) => {
         if (window.PDFLib) { resolve(); return; }
         const s = document.createElement("script");
-        s.src = PDF_LIB_CDN;
+        s.src = PDF_LIB_URL;
         s.onload = resolve;
-        s.onerror = () => reject(new Error("Could not load pdf-lib from CDN."));
+        s.onerror = () => reject(new Error("Could not load the bundled PDF library."));
         document.head.appendChild(s);
     });
 }
 
-function setField(form, fieldName, value) {
+function setField(form, fieldName, value, { fontSize = null } = {}) {
     if (value === null || value === undefined || value === "") return;
     const str = String(value).trim();
     if (!str) return;
-    try { form.getTextField(fieldName).setText(str); } catch (_) { }
+    try {
+        const field = form.getTextField(fieldName);
+        if (fontSize) field.setFontSize(fontSize);
+        field.setText(str);
+    } catch (_) { }
 }
 
 function checkBox(form, fieldName, doCheck) {
-    if (!doCheck) return;
-    try { form.getCheckBox(fieldName).check(); } catch (_) { }
+    try {
+        const field = form.getCheckBox(fieldName);
+        field.uncheck();
+        if (doCheck) field.check();
+    } catch (_) { }
+}
+
+function plainText(value) {
+    const text = String(value ?? "");
+    if (!text.includes("<")) return text.trim();
+    const node = document.createElement("div");
+    node.innerHTML = text
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/\s*(?:p|div|li|h[1-6]|blockquote)\s*>/gi, "\n");
+    return (node.textContent || "")
+        .replace(/\u00a0/g, " ")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]+/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+}
+
+function numeric(value, fallback = 0) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
+}
+
+function formatPersonalDetails(value) {
+    const labels = ["Height", "Weight", "Build", "Hair", "Eyes", "Complexion", "Distinguishing Features", "Notes"];
+    const pattern = new RegExp(`\\s*(?=(${labels.join("|")}):)`, "gi");
+    return String(value ?? "")
+        .replace(/\r\n?/g, "\n")
+        .replace(pattern, "\n")
+        .replace(/^\n/, "")
+        .replace(/\n{2,}/g, "\n")
+        .trim();
+}
+
+function parseLabeledDetails(value) {
+    const formatted = formatPersonalDetails(value);
+    const details = {};
+    for (const line of formatted.split("\n")) {
+        const separator = line.indexOf(":");
+        if (separator < 0) continue;
+        details[line.slice(0, separator).trim().toLowerCase()] = line
+            .slice(separator + 1)
+            .trim()
+            .replace(/;+\s*$/, "")
+            .trim();
+    }
+    return { formatted, details };
+}
+
+function formatPhysicalDescription(value) {
+    const { formatted, details } = parseLabeledDetails(value);
+    const line = labels => labels
+        .map(label => details[label.toLowerCase()] ? `${label}: ${details[label.toLowerCase()]}` : "")
+        .filter(Boolean)
+        .join("; ");
+    const compact = [
+        line(["Height", "Weight", "Build"]),
+        line(["Hair", "Eyes", "Complexion"]),
+        line(["Distinguishing Features"]),
+    ].filter(Boolean);
+    return compact.length ? compact.join("\n") : formatted;
+}
+
+function extractPersonalNotes(value) {
+    return parseLabeledDetails(value).details.notes || "";
+}
+
+function normalizeSpecialtyGroup(value) {
+    const normalized = String(value ?? "")
+        .trim()
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+        .replace(/[^a-z0-9]+/gi, "_")
+        .replace(/^_+|_+$/g, "")
+        .toLowerCase();
+    const aliases = {
+        foreignlanguage: "foreign_language",
+        militaryscience: "military_science",
+    };
+    return aliases[normalized] || normalized;
+}
+
+function bondFontSize(value) {
+    const length = String(value ?? "").length;
+    if (length > 52) return 4;
+    if (length > 40) return 5;
+    if (length > 30) return 6;
+    return 7;
+}
+
+function shortIdentityFontSize(value) {
+    const length = String(value ?? "").length;
+    if (length > 12) return 5;
+    if (length > 8) return 6;
+    return null;
+}
+
+function longIdentityFontSize(value) {
+    const length = String(value ?? "").length;
+    if (length > 48) return 6;
+    if (length > 36) return 7;
+    if (length > 28) return 8;
+    return null;
+}
+
+function overflowSkillFontSize(value) {
+    const length = String(value ?? "").length;
+    if (length > 36) return 5;
+    if (length > 26) return 6;
+    return 7;
+}
+
+function actorSkillTarget(actor, weapon) {
+    const system = weapon.system || {};
+    const modifier = numeric(system.skillModifier);
+    const fixed = actor.system?.skills?.[system.skill]?.proficiency;
+    if (Number.isFinite(Number(fixed))) return numeric(fixed) + modifier;
+    const typed = Object.values(actor.system?.typedSkills || {}).find(skill =>
+        skill?.id === system.skill || skill?.label === system.skill
+    );
+    if (typed) return numeric(typed.proficiency) + modifier;
+    return numeric(system.customSkillTarget) + modifier;
+}
+
+/** Build export state from a live Delta Green Agent actor. */
+export function buildActorPdfState(actor) {
+    if (!actor || actor.type !== "agent") throw new Error("PDF export requires a Delta Green Agent.");
+    const system = actor.system || {};
+    const statKeys = ["str", "con", "dex", "int", "pow", "cha"];
+    const csStats = Object.fromEntries(statKeys.map(key => [key.toUpperCase(), numeric(system.statistics?.[key]?.value)]));
+    const lpFeat = Object.fromEntries(statKeys.map(key => [key.toUpperCase(), system.statistics?.[key]?.distinguishing_feature || ""]));
+    const skills = Object.fromEntries(Object.entries(system.skills || {}).map(([key, skill]) => [key, numeric(skill?.proficiency)]));
+    const specialtyInstances = [];
+    const customSkills = [];
+    for (const skill of Object.values(system.typedSkills || {})) {
+        const label = skill?.label || skill?.name || "Other Skill";
+        const group = normalizeSpecialtyGroup(skill?.group);
+        if (["art", "craft", "foreign_language", "military_science", "pilot", "science"].includes(group)) {
+            specialtyInstances.push({ key: group, specialty: label, value: numeric(skill?.proficiency) });
+        } else {
+            customSkills.push({ name: label, value: numeric(skill?.proficiency) });
+        }
+    }
+    const items = Array.from(actor.items || []);
+    const bonds = items.filter(item => item.type === "bond").map(item => ({
+        name: item.name,
+        relationship: item.system?.relationship || "",
+        score: numeric(item.system?.score),
+        description: plainText(item.system?.description),
+    }));
+    const motivations = items.filter(item => item.type === "motivation").map(item => {
+        const disorder = item.system?.disorder ? ` (${item.system.disorder})` : "";
+        return `${item.name}${disorder}`;
+    });
+    const weapons = items.filter(item => item.type === "weapon").map(item => ({
+        name: item.name,
+        skillPct: actorSkillTarget(actor, item),
+        range: item.system?.range || "",
+        damage: item.system?.damage || "",
+        armorPiercing: item.system?.armorPiercing ?? "",
+        lethality: numeric(item.system?.lethality) > 0 ? `${numeric(item.system.lethality)}%` : "",
+        killRadius: item.system?.killRadius || "",
+        ammo: item.system?.ammo || "",
+    }));
+    const equipment = items.filter(item => ["armor", "gear"].includes(item.type)).map(item => {
+        if (item.type === "armor" && item.system?.protection !== undefined) return `${item.name} (Armor ${item.system.protection})`;
+        return item.name;
+    });
+    const specialTraining = Array.from(system.specialTraining || []).map(training => {
+        const attribute = training?.attribute || training?.id || "";
+        let label = attribute;
+        if (statKeys.includes(attribute)) label = `${attribute.toUpperCase()}x5`;
+        else if (system.skills?.[attribute]?.label) label = system.skills[attribute].label;
+        else if (system.typedSkills?.[attribute]?.label) label = system.typedSkills[attribute].label;
+        return { name: training?.name || "", value: label };
+    });
+    const violence = system.sanity?.adaptations?.violence || {};
+    const helplessness = system.sanity?.adaptations?.helplessness || {};
+    const actorPhysicalDescription = plainText(system.physical?.description);
+    return {
+        csStats,
+        derived: {
+            hp: numeric(system.health?.max), hpCurrent: numeric(system.health?.value),
+            wp: numeric(system.wp?.max), wpCurrent: numeric(system.wp?.value),
+            san: numeric(system.sanity?.max), sanCurrent: numeric(system.sanity?.value),
+            bp: numeric(system.sanity?.currentBreakingPoint),
+        },
+        bio: {
+            name: actor.name,
+            profession: system.biography?.profession,
+            employer: system.biography?.employer,
+            nationality: system.biography?.nationality,
+            sex: system.biography?.sex,
+            age: system.biography?.age,
+            education: system.biography?.education,
+            physicalDesc: formatPhysicalDescription(actorPhysicalDescription),
+            motivations: motivations.join("\n"),
+            personalDetails: extractPersonalNotes(actorPhysicalDescription),
+        },
+        skills, skillSpecs: {}, customSkills, specialtyInstances, bonds,
+        sanity: {
+            violence: [violence.incident1, violence.incident2, violence.incident3].map(Boolean),
+            helplessness: [helplessness.incident1, helplessness.incident2, helplessness.incident3].map(Boolean),
+        },
+        lpNotes: { wounds: plainText(system.physical?.wounds), gear: "", remarks: "" },
+        lpFeat, lpWeapons: weapons, equipment, specialTraining,
+    };
 }
 
 // ── Main export function ──────────────────────────────────────────────────────
@@ -121,6 +333,21 @@ function checkBox(form, fieldName, doCheck) {
  * @param {object} state  Character state in collectState() shape (see file header).
  */
 export async function exportToPDF(state) {
+    const bio = state.bio || {};
+    const safeName = (bio.name || "Agent").replace(/[^a-z0-9 \-_]/gi, "").trim() || "Agent";
+    const filename = safeName + " - Delta Green Character Sheet.pdf";
+    let fileHandle = null;
+    if (typeof globalThis.showSaveFilePicker === "function") {
+        try {
+            fileHandle = await globalThis.showSaveFilePicker({
+                suggestedName: filename,
+                types: [{ description: "PDF document", accept: { "application/pdf": [".pdf"] } }],
+            });
+        } catch (error) {
+            if (error?.name === "AbortError") return;
+            console.warn("[DG PDF Export] Native save picker unavailable; using browser download.", error);
+        }
+    }
     ui.notifications?.info("Building PDF…");
     try {
         await loadPdfLib();
@@ -134,7 +361,6 @@ export async function exportToPDF(state) {
         const pdfDoc = await PDFDocument.load(bytes);
         const form  = pdfDoc.getForm();
 
-        const bio               = state.bio               || {};
         const stats             = state.csStats            || state.stats || {};
         const derived           = state.derived            || {};
         const skills            = state.skills             || {};
@@ -150,18 +376,18 @@ export async function exportToPDF(state) {
 
         // ── Personal data ────────────────────────────────────────────────────
         setField(form, "1 LAST NAME FIRST NAME MIDDLE INITIAL", bio.name);
-        setField(form, "2 PROFESSION RANK IF APPLICABLE",       bio.profession);
-        setField(form, "3 EMPLOYER",                            bio.employer);
+        setField(form, "2 PROFESSION RANK IF APPLICABLE",       bio.profession, { fontSize: longIdentityFontSize(bio.profession) });
+        setField(form, "3 EMPLOYER",                            bio.employer, { fontSize: longIdentityFontSize(bio.employer) });
         setField(form, "4 NATIONALITY",                         bio.nationality);
-        setField(form, "SEX",                                   bio.sex);
+        setField(form, "SEX",                                   bio.sex, { fontSize: shortIdentityFontSize(bio.sex) });
         setField(form, "6 AGE AND DOB",                         bio.age);
-        setField(form, "7 EDUCATION AND OCCUPATION",            bio.education);
-        setField(form, "10 PHYSICAL DESCRIPTION",               bio.physicalDesc);
+        setField(form, "7 EDUCATION AND OCCUPATION",            bio.education, { fontSize: longIdentityFontSize(bio.education) });
+        setField(form, "10 PHYSICAL DESCRIPTION",               formatPhysicalDescription(bio.physicalDesc), { fontSize: 7 });
         setField(form, "12 MOTIVATIONS AND MENTAL DISORDERSPSYCHOLOGICAL DATA", bio.motivations);
 
         // ── Statistics + distinguishing features ─────────────────────────────
         ["STR", "CON", "DEX", "INT", "POW", "CHA"].forEach(st => {
-            const val = stats[st] || 3;
+            const val = numeric(stats[st], 3);
             setField(form, st,          String(val));
             setField(form, st + "x5",   String(val * 5));
             const feat = lpFeat[st] || "";
@@ -170,11 +396,11 @@ export async function exportToPDF(state) {
 
         // ── Derived attributes ───────────────────────────────────────────────
         setField(form, "MAXIMUMHit Points HP",         derived.hp);
-        setField(form, "CURRENTHit Points HP",         derived.hp);
+        setField(form, "CURRENTHit Points HP",         derived.hpCurrent ?? derived.hp);
         setField(form, "MAXIMUMWillpower Points WP",   derived.wp);
-        setField(form, "CURRENTWillpower Points WP",   derived.wp);
+        setField(form, "CURRENTWillpower Points WP",   derived.wpCurrent ?? derived.wp);
         setField(form, "MAXIMUMSanity Points SAN",     derived.san);
-        setField(form, "CURRENTSanity Points SAN",     derived.san);
+        setField(form, "CURRENTSanity Points SAN",     derived.sanCurrent ?? derived.san);
         setField(form, "CURRENTBreaking Point BP",     derived.bp);
 
         // ── Specialty skills ─────────────────────────────────────────────────
@@ -235,7 +461,7 @@ export async function exportToPDF(state) {
             const name     = b.name || b.label || "";
             const rel      = b.relationship || "";
             const bondLabel= name && rel ? name + " (" + rel + ")" : name || rel;
-            setField(form, "BOND " + n,       bondLabel);
+            setField(form, "BOND " + n,       bondLabel, { fontSize: bondFontSize(bondLabel) });
             setField(form, "BOND " + n + " SCORE", b.score != null ? String(b.score) : "");
         });
 
@@ -247,13 +473,17 @@ export async function exportToPDF(state) {
         ].slice(0, 6);
         foreignSlots.forEach((sk, i) => {
             const n = i + 1;
-            setField(form, "Foreign Languages and Other Skills " + n,          sk.name  || "");
+            setField(form, "Foreign Languages and Other Skills " + n,          sk.name  || "", { fontSize: overflowSkillFontSize(sk.name) });
             setField(form, "Foreign Languages and Other Skills " + n + " Score", String(sk.value));
         });
 
         // ── SAN incident checkboxes ───────────────────────────────────────────
         (sanity.violence    || []).forEach((v, i) => checkBox(form, "Check Box" + (i + 1), v));
         (sanity.helplessness|| []).forEach((v, i) => checkBox(form, "Check Box" + (i + 4), v));
+        const sex = String(bio.sex || "").trim().toLowerCase();
+        checkBox(form, "Check Box7", sex === "female" || sex === "f");
+        checkBox(form, "Check Box8", sex === "male" || sex === "m");
+        checkBox(form, "Check Box9", Boolean(sex) && !["female", "f", "male", "m"].includes(sex));
 
         // ── Page 2 ────────────────────────────────────────────────────────────
         setField(form, "14 WOUNDS AND AILMENTS_2", lpNotes.wounds);
@@ -264,7 +494,7 @@ export async function exportToPDF(state) {
         equipment.forEach(n => { if (n) gearLines.push(typeof n === "object" ? n.name : n); });
         setField(form, "15 ARMOR AND GEAR", gearLines.join("\n").trim());
 
-        setField(form, "17 PERSONAL DETAILS AND NOTES", bio.personalDetails || lpNotes.remarks || "");
+        setField(form, "17 PERSONAL DETAILS AND NOTES", formatPersonalDetails(bio.personalDetails || lpNotes.remarks || ""));
 
         // ── Weapons table (from lpWeapons if present) ─────────────────────────
         lpWeapons.slice(0, 7).forEach((w, i) => {
@@ -273,31 +503,41 @@ export async function exportToPDF(state) {
             setField(form, "SKILL "      + lt, w.skillPct  || "");
             setField(form, "BASE RANGE"  + lt, w.range     || "");
             setField(form, "DAMAGE"      + lt, w.damage    || "");
+            setField(form, "ARMOR PIERCING" + lt, w.armorPiercing ?? "");
             setField(form, "KILL DAMAGE" + lt, w.lethality || "");
             setField(form, "KILL RADIUS" + lt, w.killRadius|| "");
             setField(form, "AMMO "       + lt, w.ammo      || "");
         });
 
         // ── Special training — overflow custom skills beyond slot 6 ──────────
-        custom.filter(s => s.value > 0).slice(6).slice(0, 6).forEach((sk, i) => {
+        const specialTraining = state.specialTraining || custom.filter(s => s.value > 0).slice(6);
+        specialTraining.slice(0, 6).forEach((sk, i) => {
             const lt = WEAPON_LETTERS[i];
             setField(form, "SPECIAL TRAINING" + lt, sk.name  || "");
             setField(form, "SKILL OR STAT"    + lt, String(sk.value));
         });
 
         // ── Download ──────────────────────────────────────────────────────────
+        form.updateFieldAppearances();
         const pdfBytes = await pdfDoc.save();
-        const blob     = new Blob([pdfBytes], { type: "application/pdf" });
-        const url      = URL.createObjectURL(blob);
-        const safeName = (bio.name || "Agent").replace(/[^a-z0-9 \-_]/gi, "").trim() || "Agent";
-        const a = Object.assign(document.createElement("a"), {
-            href: url,
-            download: safeName + " - DD Form 315.pdf",
-        });
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 8000);
+        if (fileHandle) {
+            const writable = await fileHandle.createWritable();
+            await writable.write(pdfBytes);
+            await writable.close();
+        } else {
+            let binary = "";
+            const chunkSize = 0x8000;
+            for (let offset = 0; offset < pdfBytes.length; offset += chunkSize) {
+                binary += String.fromCharCode(...pdfBytes.subarray(offset, offset + chunkSize));
+            }
+            const a = document.createElement("a");
+            a.href = `data:application/octet-stream;base64,${btoa(binary)}`;
+            a.download = filename;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
 
         ui.notifications?.info("PDF downloaded!");
     } catch (err) {

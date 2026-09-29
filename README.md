@@ -19,6 +19,7 @@ Build complete Agents through a structured nine section workflow, generate a com
 * Per user preferences and a first time Player Setup Wizard
 * Handler controlled rules, content sources, creation modes, imports, and randomizers
 * Automatic draft recovery when the Creator is closed or Foundry is refreshed
+* Fillable character sheet PDF export from final review or any live Agent sheet
 
 ## Interface themes
 
@@ -129,4 +130,6 @@ See [LICENSE.md](LICENSE.md).
 
 ## Legal
 
-Delta Green is a trademark and copyright of the Delta Green Partnership. Delta Green Agent Creator is an unofficial fan made module and is not affiliated with or endorsed by the Delta Green Partnership. No rulebook PDFs or copyrighted artwork are distributed with this module.
+Published by arrangement with the Delta Green Partnership. The intellectual property known as Delta Green is a trademark and copyright owned by the Delta Green Partnership, who has licensed its use here. The contents of this module are © 2026 Nore, excepting those elements that are components of the Delta Green intellectual property.
+
+The official blank Delta Green character sheet PDF is bundled unmodified with permission from Arc Dream Publishing for character export. No rulebook PDFs are included.

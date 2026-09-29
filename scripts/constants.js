@@ -93,7 +93,15 @@ export function parseSpecialtyFromName(name) {
     for (const [base, group] of Object.entries(SPECIALTY_PREFIXES)) {
         if (name === base) return { group, label: '' };
         if (name.startsWith(base + ' (') && name.endsWith(')')) {
-            return { group, label: name.slice(base.length + 2, -1) };
+            const label = name.slice(base.length + 2, -1).trim();
+            const choices = /\bor\b|,/i.test(label)
+                ? label.split(/\s*(?:,|\bor\b)\s*/i).map(choice => choice.trim()).filter(Boolean)
+                : [];
+            return {
+                group,
+                label: /^choose\s+(?:one|any)$/i.test(label) || choices.length > 1 ? '' : label,
+                choices,
+            };
         }
     }
     return null;

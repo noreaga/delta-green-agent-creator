@@ -19,3 +19,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+Third-party materials
+
+The bundled blank Delta Green character sheet PDF is not covered by the MIT
+License above. Delta Green and the character sheet are intellectual property of
+the Delta Green Partnership and are included unmodified with permission from
+Arc Dream Publishing. All rights in that material remain with their respective
+owners.

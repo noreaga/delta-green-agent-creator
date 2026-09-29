@@ -8,6 +8,7 @@ import { getAllowedStatMethods, getSetting } from './settings.js';
 import {
     createAgentExchange, downloadAgentExchange, encodeAgentCode, parseAgentExchange,
 } from './agent-exchange.js';
+import { exportToPDF } from './pdf-export.js';
 import {
     SKILL_DEFAULTS, BONUS_SKILL_OPTIONS, SPECIALTY_PREFIXES, SPECIALTY_OPTIONS,
     parseSpecialtyFromName, parseSpecialtyFromKey,
@@ -317,6 +318,7 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
             importAgentFile: DeltaGreenChargenWizard.#onImportAgentFile,
             pasteAgentCode: DeltaGreenChargenWizard.#onPasteAgentCode,
             exportAgentJson: DeltaGreenChargenWizard.#onExportAgentJson,
+            exportAgentPdf: DeltaGreenChargenWizard.#onExportAgentPdf,
             copyAgentCode: DeltaGreenChargenWizard.#onCopyAgentCode,
             loadStoredAgent: DeltaGreenChargenWizard.#onLoadStoredAgent,
         },
@@ -879,6 +881,15 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
         return label;
     }
 
+    #randomDeclaredSpecialty(specialty, used = new Set()) {
+        const declaredChoices = Array.isArray(specialty?.choices) ? specialty.choices.filter(Boolean) : [];
+        if (declaredChoices.length === 0) return this.#randomSpecialty(specialty.group, used);
+        const available = declaredChoices.filter(choice => !used.has(`${specialty.group}:${choice.toLowerCase()}`));
+        const label = this.#randomItem(available.length > 0 ? available : declaredChoices);
+        used.add(`${specialty.group}:${label.toLowerCase()}`);
+        return label;
+    }
+
     async #randomizeStatData() {
         this.#rememberRolledState();
         const allowed = new Set(getAllowedStatMethods());
@@ -981,7 +992,7 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
                     ? (randomizeChoices ? this.#randomSpecialty(specialty.group, usedSpecialties) : '')
                     : (preserveFixed
                         ? previous.label
-                        : (specialty.label || (randomizeChoices ? this.#randomSpecialty(specialty.group, usedSpecialties) : '')));
+                        : (specialty.label || (randomizeChoices ? this.#randomDeclaredSpecialty(specialty, usedSpecialties) : '')));
                 if (label) usedSpecialties.add(`${specialty.group}:${label.toLowerCase()}`);
                 this.#data.specialtySlots.push({
                     id: slotId++,
@@ -1021,7 +1032,7 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
             const skill = prof.optionalSkills[index];
             const specialty = parseSpecialtyFromName(skill.name);
             if (specialty) {
-                const label = specialty.label || this.#randomSpecialty(specialty.group, usedSpecialties);
+                const label = specialty.label || this.#randomDeclaredSpecialty(specialty, usedSpecialties);
                 this.#data.optSpecialtyLabels[index] = label;
                 this.#data.specialtySlots.push({
                     id: `opt_${index}`,
@@ -1674,10 +1685,9 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
         };
 
         const hp = Math.ceil((this.#data.stats.con + this.#data.stats.str) / 2);
-        const wp = this.#data.stats.pow;
-        const san = this.#data.stats.pow * 5;
-        const bp = san - wp;
-        const derived = { hp, wp, san, bp };
+        let wp = this.#data.stats.pow;
+        let sanCurrent = this.#data.stats.pow * 5;
+        let bp = sanCurrent - wp;
 
         // Compute effective plain-skill values (base + standard bonus boosts)
         const skills = { ...this.#data.skills };
@@ -1692,6 +1702,46 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
             if (!(key in skills) && !(key in SKILL_DEFAULTS)) continue;
             skills[key] = Math.min(80, (skills[key] ?? SKILL_DEFAULTS[key] ?? 0) + count);
         }
+
+        const currentSkill = key => Number(skills[key] ?? SKILL_DEFAULTS[key] ?? 0);
+        const addVeteranSkill = (key, amount, cap = 99) => {
+            skills[key] = Math.min(cap, currentSkill(key) + amount);
+        };
+        const veteranPath = this.#data.veteran?.path ?? 'freshRecruit';
+        let bondPenalty = 0;
+        const sanity = { violence: [false, false, false], helplessness: [false, false, false] };
+        const pdfMotivations = this.#data.motivations.filter(motivation => motivation.trim());
+
+        if (veteranPath === 'extremeViolence') {
+            addVeteranSkill('occult', 10);
+            csStats.CHA = Math.max(3, csStats.CHA - 3);
+            sanCurrent = Math.max(0, this.#data.stats.pow * 5 - 5);
+            bondPenalty = 3;
+            sanity.violence = [true, true, true];
+        } else if (veteranPath === 'captivity') {
+            addVeteranSkill('occult', 10);
+            csStats.POW = Math.max(3, csStats.POW - 3);
+            wp = csStats.POW;
+            sanCurrent = Math.max(0, this.#data.stats.pow * 5 - 5);
+            sanity.helplessness = [true, true, true];
+        } else if (veteranPath === 'hardExperience') {
+            addVeteranSkill('occult', 10);
+            sanCurrent = Math.max(0, this.#data.stats.pow * 5 - 5);
+            for (const key of this.#data.veteran.hardSkills.filter(Boolean)) {
+                addVeteranSkill(key, 10, 90);
+            }
+        } else if (veteranPath === 'thingsMan') {
+            addVeteranSkill('occult', 20);
+            addVeteranSkill('unnatural', 10);
+            sanCurrent = Math.max(0, this.#data.stats.pow * 4);
+            bp = Math.max(0, sanCurrent - this.#data.stats.pow);
+            if (this.#data.veteran.disorder) {
+                pdfMotivations.push(`Describe Motivation (${this.#data.veteran.disorder})`);
+            }
+        }
+
+        const maximumSanity = Math.max(0, 99 - currentSkill('unnatural'));
+        const derived = { hp, wp, san: maximumSanity, sanCurrent, bp };
 
         // Build specialtyInstances from profession specialty slots
         const specMap = new Map(); // `${key}||${specialty}` → instance object (for dedup/boost merging)
@@ -1753,32 +1803,32 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
             sex: this.#data.biography.sex,
             age: this.#data.biography.age,
             education: this.#data.biography.education,
-            motivations: this.#data.motivations.filter(m => m.trim()).join('\n'),
-            personalDetails: Object.entries({
-                Height: this.#data.physical.height,
-                Weight: this.#data.physical.weight,
-                Build: this.#data.physical.build,
-                Hair: this.#data.physical.hair,
-                Eyes: this.#data.physical.eyes,
-                Complexion: this.#data.physical.complexion,
-                'Distinguishing Features': this.#data.physical.distinguishingFeatures,
-                Notes: this.#data.physical.notes,
-            }).filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`).join('\n'),
+            physicalDesc: [
+                [['Height', this.#data.physical.height], ['Weight', this.#data.physical.weight], ['Build', this.#data.physical.build]],
+                [['Hair', this.#data.physical.hair], ['Eyes', this.#data.physical.eyes], ['Complexion', this.#data.physical.complexion]],
+                [['Distinguishing Features', this.#data.physical.distinguishingFeatures]],
+            ].map(row => row.filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`).join('; ')).filter(Boolean).join('\n'),
+            motivations: pdfMotivations.join('\n'),
+            personalDetails: this.#data.physical.notes,
         };
 
         // Distinguishing features from stat descriptors
         const lpFeat = {};
         for (const k of ['str', 'con', 'dex', 'int', 'pow', 'cha']) {
-            lpFeat[k.toUpperCase()] = getStatDescriptor(k, this.#data.stats[k]);
+            lpFeat[k.toUpperCase()] = getStatDescriptor(k, csStats[k.toUpperCase()]);
         }
+
+        const bonds = this.#data.bonds
+            .filter(bond => bond.name)
+            .map(bond => ({ ...bond, score: Math.max(0, bond.score - bondPenalty) }));
 
         return {
             csStats, derived, bio, skills,
             skillSpecs: {},
             customSkills: [],
             specialtyInstances,
-            bonds: this.#data.bonds,
-            sanity: { violence: [false, false, false], helplessness: [false, false, false] },
+            bonds,
+            sanity,
             lpNotes: { wounds: '', gear: '', remarks: '' },
             lpFeat,
             lpWeapons: [],
@@ -3219,6 +3269,10 @@ export class DeltaGreenChargenWizard extends HandlebarsApplicationMixin(Applicat
         const exchange = this.#createExchange();
         downloadAgentExchange(exchange, this.#data.biography?.name || this.#actor.name);
         ui.notifications.info('Agent JSON exported.');
+    }
+
+    static async #onExportAgentPdf(event, target) {
+        await exportToPDF(this.#buildPdfState());
     }
 
     static async #onCopyAgentCode(event, target) {
